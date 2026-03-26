@@ -1,66 +1,38 @@
-import requests
-import json
-import os
-from datetime import datetime, timedelta
+name: Hourly MausamGram Update
 
-# 1. The 14 Districts and their coordinates
-districts = {
-    "Kasaragod": [12.510, 74.985], "Kannur": [11.874, 75.370],
-    "Wayanad": [11.610, 76.083], "Kozhikode": [11.258, 75.780],
-    "Malappuram": [11.073, 76.074], "Palakkad": [10.786, 76.654],
-    "Thrissur": [10.527, 76.214], "Ernakulam": [9.931, 76.267],
-    "Idukki": [9.850, 76.915], "Kottayam": [9.591, 76.522],
-    "Alappuzha": [9.498, 76.338], "Pathanamthitta": [9.264, 76.787],
-    "Kollam": [8.893, 76.614], "Trivandrum": [8.524, 76.936]
-}
+on:
+  schedule:
+    - cron: '0 * * * *' # Runs exactly at the start of every hour
+  workflow_dispatch: # This adds the "Run workflow" button for you
 
-def get_weather():
-    headers = {"User-Agent": "Mozilla/5.0"}
-    all_data = {}
-    working_date = None
+jobs:
+  build:
+    runs-on: ubuntu-latest
     
-    print("🔍 Searching for a working IMD date...")
-    
-    # Try the last 4 days to find which 'cake' IMD has on the shelf
-    for i in range(5):
-        test_date = (datetime.now() - timedelta(days=i)).strftime("%Y%m%d") + "00"
-        test_url = f"https://mausamgram.imd.gov.in/test4_mme.php?lat_gfs=10.527&lon_gfs=76.214&date={test_date}_3hr_0p125"
-        try:
-            response = requests.get(test_url, headers=headers, timeout=10)
-            res_json = response.json()
-            if "temp" in res_json:
-                working_date = test_date
-                print(f"✅ Found working date: {working_date}")
-                break
-        except Exception as e:
-            print(f"Skipping {test_date} due to: {e}")
-            continue
+    # This gives the robot permission to save files back to your repo
+    permissions:
+      contents: write
 
-    if working_date:
-        for name, coords in districts.items():
-            url = f"https://mausamgram.imd.gov.in/test4_mme.php?lat_gfs={coords[0]}&lon_gfs={coords[1]}&date={working_date}_3hr_0p125"
-            try:
-                response = requests.get(url, headers=headers, timeout=10)
-                if response.status_code == 200:
-                    data = response.json()
-                    all_data[name] = {
-                        "temp": data["temp"][0],
-                        "humidity": data["rh"][0],
-                        "wind": data["ws"][0],
-                        "condition": data["weather_desc"][0] if "weather_desc" in data else "Clear",
-                        "last_update": working_date
-                    }
-                    print(f"Fetched {name}: {data['temp'][0]}°C")
-            except:
-                print(f"❌ Error fetching {name}")
-    else:
-        all_data = {"error": "IMD servers are busy. Retrying next hour."}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    # Save to the 'data' folder
-    os.makedirs('data', exist_ok=True)
-    with open('data/weather.json', 'w') as f:
-        json.dump(all_data, f, indent=4)
-    print("🚀 Data saved to data/weather.json")
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
-if __name__ == "__main__":
-    get_weather()
+      - name: Install Requests Library
+        run: pip install requests
+
+      - name: Run Fetch Script
+        run: python fetch_weather.py
+
+      - name: Commit and Push Weather Data
+        run: |
+          git config --global user.name "Weather-Bot"
+          git config --global user.email "actions@github.com"
+          git add data/weather.json
+          # The 'exit 0' prevents the robot from crying if there are no changes to the data
+          git commit -m "Update Kerala weather data" || exit 0
+          git push
