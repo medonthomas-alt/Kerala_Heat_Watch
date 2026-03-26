@@ -1,0 +1,31 @@
+name: Hourly MausamGram Update
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run Fetch Script
+        run: python fetch_weather.py
+
+      - name: Commit and Push
+        run: |
+          git config --global user.name "Weather-Bot"
+          git config --global user.email "bot@github.com"
+          git add data/weather.json
+          git commit -m "Update MausamGram data" || exit 0
+          git push
