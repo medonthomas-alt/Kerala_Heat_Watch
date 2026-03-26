@@ -9,11 +9,11 @@
     "max_map": "https://sdma.kerala.gov.in/wp-content/uploads/2026/03/T-MAX-10.jpeg",
     "min_map": "https://sdma.kerala.gov.in/wp-content/uploads/2026/02/T-MIN-8.jpeg",
     "humid_map": "https://sdma.kerala.gov.in/wp-content/uploads/2026/03/Hot-Humid-Map.jpg",
-    "sync_at": "2026-03-26 13:00"
+    "sync_at": "2026-03-26 13:05"
   },
   "stations": [
     {
-      "name": null,
+      "name": "Station 11.0333,77.05",
       "lat": 11.0333,
       "lon": 77.05,
       "temp": 37.0,
@@ -26,7 +26,7 @@
       "sunset": "18:33:00"
     },
     {
-      "name": null,
+      "name": "Station 11.9167,75.3667",
       "lat": 11.9167,
       "lon": 75.3667,
       "temp": 34.0,
@@ -39,7 +39,7 @@
       "sunset": "18:40:00"
     },
     {
-      "name": null,
+      "name": "Station 8.0833,77.5",
       "lat": 8.0833,
       "lon": 77.5,
       "temp": 35.0,
@@ -52,20 +52,20 @@
       "sunset": "18:30:00"
     },
     {
-      "name": null,
+      "name": "Station 9.5333,76.6",
       "lat": 9.5333,
       "lon": 76.6,
-      "temp": 38.0,
-      "departure": "+3.3",
+      "temp": 37.0,
+      "departure": "+2.3",
       "humidity": 89.0,
-      "real_feel": 35.7,
+      "real_feel": 34.6,
       "rainfall": 0,
       "warning_code": 4,
       "sunrise": "06:25:00",
       "sunset": "18:34:00"
     },
     {
-      "name": null,
+      "name": "Station 11.25,75.7833",
       "lat": 11.25,
       "lon": 75.7833,
       "temp": 35.0,
@@ -78,7 +78,7 @@
       "sunset": "18:38:00"
     },
     {
-      "name": null,
+      "name": "Station 12.9167,74.8833",
       "lat": 12.9167,
       "lon": 74.8833,
       "temp": 34.0,
@@ -91,7 +91,7 @@
       "sunset": "18:42:00"
     },
     {
-      "name": null,
+      "name": "Station 12.2833,76.6333",
       "lat": 12.2833,
       "lon": 76.6333,
       "temp": 35.0,
@@ -104,20 +104,20 @@
       "sunset": "18:35:00"
     },
     {
-      "name": null,
+      "name": "Station 9.0,76.9167",
       "lat": 9.0,
       "lon": 76.9167,
-      "temp": 38.0,
-      "departure": "+1.6",
+      "temp": 37.0,
+      "departure": "+0.6",
       "humidity": 90.0,
-      "real_feel": 35.7,
+      "real_feel": 34.6,
       "rainfall": 0,
       "warning_code": 4,
       "sunrise": "06:23:00",
       "sunset": "18:33:00"
     },
     {
-      "name": null,
+      "name": "Station 8.4833,76.95",
       "lat": 8.4833,
       "lon": 76.95,
       "temp": 35.0,
@@ -130,20 +130,20 @@
       "sunset": "18:33:00"
     },
     {
-      "name": null,
+      "name": "Station 8.4667,76.95",
       "lat": 8.4667,
       "lon": 76.95,
-      "temp": 35.0,
-      "departure": "+1.8",
+      "temp": 33.0,
+      "departure": -0.2,
       "humidity": 50.0,
-      "real_feel": 30.6,
+      "real_feel": 28.4,
       "rainfall": 0,
       "warning_code": 4,
       "sunrise": "06:23:00",
       "sunset": "18:33:00"
     },
     {
-      "name": null,
+      "name": "Station 11.35,76.8",
       "lat": 11.35,
       "lon": 76.8,
       "temp": 25.0,
@@ -156,7 +156,7 @@
       "sunset": "18:34:00"
     },
     {
-      "name": null,
+      "name": "Station 13.0,76.15",
       "lat": 13.0,
       "lon": 76.15,
       "temp": 35.0,
@@ -169,7 +169,7 @@
       "sunset": "18:37:00"
     },
     {
-      "name": null,
+      "name": "Station 10.2333,77.4667",
       "lat": 10.2333,
       "lon": 77.4667,
       "temp": 23.0,
