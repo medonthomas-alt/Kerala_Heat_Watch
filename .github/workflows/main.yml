@@ -3,6 +3,7 @@ import json
 import os
 from datetime import datetime, timedelta
 
+# 1. The 14 Districts and their coordinates
 districts = {
     "Kasaragod": [12.510, 74.985], "Kannur": [11.874, 75.370],
     "Wayanad": [11.610, 76.083], "Kozhikode": [11.258, 75.780],
@@ -18,21 +19,23 @@ def get_weather():
     all_data = {}
     working_date = None
     
-    # 1. FIND THE WORKING DATE FIRST
-    # We try Today, Yesterday, and the day before
-    for i in range(3):
+    print("🔍 Searching for a working IMD date...")
+    
+    # Try the last 4 days to find which 'cake' IMD has on the shelf
+    for i in range(5):
         test_date = (datetime.now() - timedelta(days=i)).strftime("%Y%m%d") + "00"
         test_url = f"https://mausamgram.imd.gov.in/test4_mme.php?lat_gfs=10.527&lon_gfs=76.214&date={test_date}_3hr_0p125"
         try:
-            res = requests.get(test_url, headers=headers, timeout=10).json()
-            if "temp" in res:
+            response = requests.get(test_url, headers=headers, timeout=10)
+            res_json = response.json()
+            if "temp" in res_json:
                 working_date = test_date
                 print(f"✅ Found working date: {working_date}")
                 break
-        except:
+        except Exception as e:
+            print(f"Skipping {test_date} due to: {e}")
             continue
 
-    # 2. FETCH DATA FOR ALL DISTRICTS IF DATE FOUND
     if working_date:
         for name, coords in districts.items():
             url = f"https://mausamgram.imd.gov.in/test4_mme.php?lat_gfs={coords[0]}&lon_gfs={coords[1]}&date={working_date}_3hr_0p125"
@@ -40,23 +43,24 @@ def get_weather():
                 response = requests.get(url, headers=headers, timeout=10)
                 if response.status_code == 200:
                     data = response.json()
-                    # We only save the first entry (current weather) to keep the file small
                     all_data[name] = {
                         "temp": data["temp"][0],
                         "humidity": data["rh"][0],
                         "wind": data["ws"][0],
                         "condition": data["weather_desc"][0] if "weather_desc" in data else "Clear",
-                        "date_used": working_date
+                        "last_update": working_date
                     }
+                    print(f"Fetched {name}: {data['temp'][0]}°C")
             except:
                 print(f"❌ Error fetching {name}")
     else:
-        all_data = {"error": "IMD servers are currently updating. Please check back in 10 minutes."}
+        all_data = {"error": "IMD servers are busy. Retrying next hour."}
 
-    # 3. SAVE THE DATA
+    # Save to the 'data' folder
     os.makedirs('data', exist_ok=True)
     with open('data/weather.json', 'w') as f:
         json.dump(all_data, f, indent=4)
+    print("🚀 Data saved to data/weather.json")
 
 if __name__ == "__main__":
     get_weather()
