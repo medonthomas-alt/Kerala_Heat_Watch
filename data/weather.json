@@ -2,18 +2,18 @@
   "meta": {
     "alert_header": "ഉയർന്ന താപനില മുന്നറിയിപ്പ് – മഞ്ഞ അലർട്ട്",
     "alert_paragraphs": [
+      "Kerala State Disaster Management Authority",
       "ഉയർന്ന താപനില മുന്നറിയിപ്പ് – മഞ്ഞ അലർട്ട്",
-      "2026 മാർച്ച് 26 & 27 തീയതികളിൽ കൊല്ലം, കോട്ടയം, പാലക്കാട് ജില്ലകളിൽ ഉയർന്ന താപനില 38 °C വരെയും പത്തനംതിട്ട, ആലപ്പുഴ, തൃശൂർ, എറണാകുളം, കോഴിക്കോട്, കണ്ണൂർ ജില്ലകളിൽ ഉയർന്ന താപനില 37°C വരെയും; തിരുവനന്തപുരം, മലപ്പുറം, കാസർഗോഡ് ജില്ലകളിൽ ഉയർന്ന താപനില 36°C വരെയും ഉയരാൻ (സാധാരണയെക്കാൾ 2 to 3˚C വരെ കൂടുതൽ) സാധ്യതയെന്ന് കേന്ദ്ര കാലാവസ്ഥ വകുപ്പ് അറിയിക്കുന്നു.",
-      "ഉയർന്ന താപനിലയും ഈർപ്പമുള്ള വായുവും കാരണം ഈ ജില്ലകളിൽ, മലയോര മേഖലകളിലൊഴികെ, 2026 മാർച്ച് 26 മുതൽ 27 വരെ ചൂടും അസ്വസ്ഥതയുമുള്ള കാലാവസ്ഥയ്ക്ക് സാധ്യതയുണ്ട്."
+      "2026 മാർച്ച് 26 & 27 തീയതികളിൽ കൊല്ലം, കോട്ടയം, പാലക്കാട് ജില്ലകളിൽ ഉയർന്ന താപനില 38 °C വരെയും പത്തനംതിട്ട, ആലപ്പുഴ, തൃശൂർ, എറണാകുളം, കോഴിക്കോട്, കണ്ണൂർ ജില്ലകളിൽ ഉയർന്ന താപനില 37°C വരെയും; തിരുവനന്തപുരം, മലപ്പുറം, കാസർഗോഡ് ജില്ലകളിൽ ഉയർന്ന താപനില 36°C വരെയും ഉയരാൻ (സാധാരണയെക്കാൾ 2 to 3˚C വരെ കൂടുതൽ) സാധ്യതയെന്ന് കേന്ദ്ര കാലാവസ്ഥ വകുപ്പ് അറിയിക്കുന്നു."
     ],
     "max_map": "https://sdma.kerala.gov.in/wp-content/uploads/2026/03/T-MAX-10.jpeg",
     "min_map": "https://sdma.kerala.gov.in/wp-content/uploads/2026/02/T-MIN-8.jpeg",
     "humid_map": "https://sdma.kerala.gov.in/wp-content/uploads/2026/03/Hot-Humid-Map.jpg",
-    "sync_at": "2026-03-26 13:14"
+    "sync_at": "2026-03-26 13:19"
   },
   "stations": [
     {
-      "name": "AWS 11.0333",
+      "name": "AWS 11.03",
       "lat": 11.0333,
       "lon": 77.05,
       "temp": 37.0,
@@ -21,13 +21,12 @@
       "departure": "+0.6",
       "humidity": 62.0,
       "real_feel": 33.3,
-      "rainfall": 0,
       "warning_code": 4,
       "sunrise": "06:23:00",
       "sunset": "18:33:00"
     },
     {
-      "name": "AWS 11.9167",
+      "name": "Kannur",
       "lat": 11.9167,
       "lon": 75.3667,
       "temp": 34.0,
@@ -35,13 +34,12 @@
       "departure": -0.9,
       "humidity": 81.0,
       "real_feel": 30.9,
-      "rainfall": 0,
       "warning_code": 4,
       "sunrise": "06:29:00",
       "sunset": "18:40:00"
     },
     {
-      "name": "AWS 8.0833",
+      "name": "AWS 8.08",
       "lat": 8.0833,
       "lon": 77.5,
       "temp": 35.0,
@@ -49,13 +47,12 @@
       "departure": "+2.0",
       "humidity": 69.0,
       "real_feel": 31.4,
-      "rainfall": 0,
       "warning_code": 4,
       "sunrise": "06:21:00",
       "sunset": "18:30:00"
     },
     {
-      "name": "Kochi (CIAL)",
+      "name": "AWS 9.53",
       "lat": 9.5333,
       "lon": 76.6,
       "temp": 37.0,
@@ -63,7 +60,6 @@
       "departure": "+2.3",
       "humidity": 89.0,
       "real_feel": 34.6,
-      "rainfall": 0,
       "warning_code": 4,
       "sunrise": "06:25:00",
       "sunset": "18:34:00"
@@ -77,13 +73,12 @@
       "departure": "+0.7",
       "humidity": 81.0,
       "real_feel": 32.0,
-      "rainfall": 0,
       "warning_code": 4,
       "sunrise": "06:28:00",
       "sunset": "18:38:00"
     },
     {
-      "name": "AWS 12.9167",
+      "name": "AWS 12.92",
       "lat": 12.9167,
       "lon": 74.8833,
       "temp": 34.0,
@@ -91,13 +86,12 @@
       "departure": "+0.1",
       "humidity": 80.0,
       "real_feel": 30.9,
-      "rainfall": 0,
       "warning_code": 4,
       "sunrise": "06:31:00",
       "sunset": "18:42:00"
     },
     {
-      "name": "AWS 12.2833",
+      "name": "AWS 12.28",
       "lat": 12.2833,
       "lon": 76.6333,
       "temp": 35.0,
@@ -105,13 +99,12 @@
       "departure": "+0.7",
       "humidity": 58.0,
       "real_feel": 30.9,
-      "rainfall": 0,
       "warning_code": 4,
       "sunrise": "06:24:00",
       "sunset": "18:35:00"
     },
     {
-      "name": "Kozhikode",
+      "name": "Punalur",
       "lat": 9.0,
       "lon": 76.9167,
       "temp": 37.0,
@@ -119,7 +112,6 @@
       "departure": "+0.6",
       "humidity": 90.0,
       "real_feel": 34.6,
-      "rainfall": 0,
       "warning_code": 4,
       "sunrise": "06:23:00",
       "sunset": "18:33:00"
@@ -133,13 +125,12 @@
       "departure": "+0.8",
       "humidity": 60.0,
       "real_feel": 31.0,
-      "rainfall": 0,
       "warning_code": 4,
       "sunrise": "06:23:00",
       "sunset": "18:33:00"
     },
     {
-      "name": "AWS 8.4667",
+      "name": "Thiruvananthapuram (Airport)",
       "lat": 8.4667,
       "lon": 76.95,
       "temp": 33.0,
@@ -147,7 +138,6 @@
       "departure": -0.2,
       "humidity": 50.0,
       "real_feel": 28.4,
-      "rainfall": 0,
       "warning_code": 4,
       "sunrise": "06:23:00",
       "sunset": "18:33:00"
@@ -156,12 +146,11 @@
       "name": "AWS 11.35",
       "lat": 11.35,
       "lon": 76.8,
-      "temp": 25.0,
+      "temp": 26.0,
       "status": "Normal",
-      "departure": "+0.9",
+      "departure": "+1.9",
       "humidity": 46.0,
-      "real_feel": 25.0,
-      "rainfall": 0,
+      "real_feel": 26.0,
       "warning_code": 4,
       "sunrise": "06:24:00",
       "sunset": "18:34:00"
@@ -175,21 +164,19 @@
       "departure": "+1.7",
       "humidity": 45.0,
       "real_feel": 30.3,
-      "rainfall": 0,
       "warning_code": 4,
       "sunrise": "06:26:00",
       "sunset": "18:37:00"
     },
     {
-      "name": "AWS 10.2333",
+      "name": "AWS 10.23",
       "lat": 10.2333,
       "lon": 77.4667,
-      "temp": 23.0,
+      "temp": 21.0,
       "status": "Normal",
-      "departure": "+1.5",
+      "departure": -0.5,
       "humidity": 33.0,
-      "real_feel": 23.0,
-      "rainfall": 0,
+      "real_feel": 21.0,
       "warning_code": 4,
       "sunrise": "06:21:00",
       "sunset": "18:31:00"
