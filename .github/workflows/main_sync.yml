@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  sync_data:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -15,13 +15,12 @@ jobs:
           python-version: '3.10'
       - name: Install Dependencies
         run: pip install requests beautifulsoup4
-      - name: Run Unified Script
-        # We assume the script is at the root for easier pathing in GitHub Actions
+      - name: Run Scraper
         run: python scrapers/fetch_weather.py
-      - name: Commit Updates
+      - name: Commit
         run: |
           git config --local user.email "bot@github.com"
-          git config --local user.name "War-Room-Bot"
+          git config --local user.name "Heat-Watch-Bot"
           git add data/weather.json
-          git commit -m "Unified Data Update: IMD + KSDMA [skip ci]" || exit 0
+          git commit -m "Precise Data Update [skip ci]" || exit 0
           git push
