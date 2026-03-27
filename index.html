@@ -4,229 +4,258 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Kerala Heat Watch | കേരള ചൂട് നിരീക്ഷണം</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Noto+Sans+Malayalam:wght@400;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Noto+Sans+Malayalam:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0a0c10;--bg2:#10131a;--bg3:#161b24;--bg4:#1c2230;
-  --border:#1f2937;--border2:#2d3748;
-  --text:#e2e8f0;--muted:#94a3b8;--faint:#4b5563;
-  --normal:#22c55e;--watch:#f59e0b;--alert:#f97316;--warning:#ef4444;--extreme:#a855f7;
-  --normal-glow:rgba(34,197,94,.15);--watch-glow:rgba(245,158,11,.15);
-  --alert-glow:rgba(249,115,22,.15);--warning-glow:rgba(239,68,68,.15);
-  --extreme-glow:rgba(168,85,247,.15);
+  --bg:#080b12;--s1:#0d1117;--s2:#161b24;--s3:#1c2230;--s4:#232d3f;
+  --br:#1e2736;--br2:#2a3649;
+  --tx:#e2e8f0;--tx2:#94a3b8;--tx3:#4b5563;
+  --grn:#22c55e;--ylw:#eab308;--org:#f97316;--red:#ef4444;--pur:#a855f7;
+  --grn-a:rgba(34,197,94,.12);--ylw-a:rgba(234,179,8,.12);
+  --org-a:rgba(249,115,22,.12);--red-a:rgba(239,68,68,.12);--pur-a:rgba(168,85,247,.12);
 }
 html{scroll-behavior:smooth}
-body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden}
 .ml{font-family:'Noto Sans Malayalam',sans-serif}
+a{text-decoration:none;color:inherit}
 
-/* ── LOADING ── */
-#loading{position:fixed;inset:0;z-index:9999;background:var(--bg);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px}
-.load-icon{font-size:52px;animation:float 2s ease-in-out infinite}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-.load-title{font-size:20px;font-weight:700;letter-spacing:2px;color:var(--text)}
-.load-sub{font-size:12px;color:var(--muted);letter-spacing:1px}
-.load-bar{width:180px;height:2px;background:var(--border2);border-radius:2px;overflow:hidden}
-.load-fill{height:100%;background:linear-gradient(90deg,#ef4444,#f97316);
-  animation:loadfill 2.5s ease forwards}
-@keyframes loadfill{from{width:0}to{width:100%}}
+/* ─── LOADING ─────────────────────────────────────────────── */
+#loading{position:fixed;inset:0;z-index:9000;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px}
+.li{font-size:48px;animation:bob 2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.lt{font-size:18px;font-weight:700;letter-spacing:3px;color:var(--tx)}
+.ls{font-size:11px;color:var(--tx2);letter-spacing:1px}
+.lb{width:160px;height:2px;background:var(--br2);border-radius:2px;overflow:hidden}
+.lf{height:100%;background:linear-gradient(90deg,var(--red),var(--org));animation:lf 2.5s ease forwards}
+@keyframes lf{from{width:0}to{width:100%}}
 
-/* ── HEADER ── */
-header{background:rgba(10,12,16,.95);backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--border);padding:12px 20px;
-  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
-  position:sticky;top:0;z-index:500}
-.logo-row{display:flex;align-items:center;gap:12px}
-.live-dot{position:relative;width:10px;height:10px;flex-shrink:0}
-.live-dot::before{content:'';position:absolute;inset:0;border-radius:50%;
-  background:#ef4444;animation:blink 1.4s ease-in-out infinite}
-.live-dot::after{content:'';position:absolute;inset:-3px;border-radius:50%;
-  border:1px solid #ef444466;animation:blink 1.4s ease-in-out infinite .2s}
-@keyframes blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.15)}}
-.logo-text{font-size:17px;font-weight:700;letter-spacing:.5px}
-.logo-text span{color:#ef4444}
-.logo-sub{font-size:9px;color:var(--muted);letter-spacing:1.5px;margin-top:1px}
-.header-badges{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.badge{padding:3px 10px;border-radius:20px;font-size:10px;letter-spacing:.8px;font-weight:600}
-.badge-imd{background:#1e3a5f;color:#60a5fa;border:1px solid #1d4ed844}
-.badge-live{background:#1a1a1a;color:var(--muted);border:1px solid var(--border2)}
-.issued-time{font-size:11px;color:var(--muted);padding:3px 10px;
-  background:var(--bg3);border:1px solid var(--border);border-radius:20px}
+/* ─── HEADER ──────────────────────────────────────────────── */
+header{background:rgba(8,11,18,.96);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--br);padding:0 20px;height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:500;gap:12px}
+.hlogo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--red);flex-shrink:0;
+  box-shadow:0 0 0 0 rgba(239,68,68,.5);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.4)}
+  70%{box-shadow:0 0 0 7px rgba(239,68,68,0)}}
+.hname{font-size:16px;font-weight:700;letter-spacing:.3px;line-height:1}
+.hname span{color:var(--red)}
+.hsub{font-size:9px;color:var(--tx2);letter-spacing:1px;margin-top:1px}
+.hright{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+.hbadge{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;
+  background:var(--s3);border:1px solid var(--br2);color:var(--tx2);white-space:nowrap}
+.lang-btn{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;
+  background:var(--s3);border:1px solid var(--br2);color:var(--tx2);
+  cursor:pointer;transition:all .2s;white-space:nowrap}
+.lang-btn:hover{background:var(--s4);color:var(--tx);border-color:var(--br2)}
+.lang-btn.active-lang{background:var(--red);border-color:var(--red);color:#fff}
+#issued-badge{display:none;font-size:10px;color:var(--ylw);
+  background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.2);
+  padding:3px 10px;border-radius:20px;white-space:nowrap}
 
-/* ── KSDMA ALERT BAR ── */
-.alert-bar{padding:14px 20px;border-bottom:1px solid var(--border);display:none}
-.alert-bar-inner{max-width:1400px;margin:0 auto}
-.alert-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
-.ksdma-badge{padding:4px 12px;border-radius:4px;font-size:10px;font-weight:700;
-  letter-spacing:1.5px;color:#fff}
-.alert-title{font-size:14px;font-weight:700;letter-spacing:.3px}
-.alert-body{font-size:12px;line-height:1.8;color:var(--muted)}
-.alert-body p{margin-bottom:3px}
+/* ─── ALERT BAR ───────────────────────────────────────────── */
+#alert-bar{display:none;border-bottom:1px solid var(--br)}
+.ab-inner{max-width:1600px;margin:0 auto;padding:12px 20px}
+.ab-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.ab-badge{padding:3px 10px;border-radius:4px;font-size:10px;font-weight:700;
+  letter-spacing:1.5px;color:#fff;flex-shrink:0}
+.ab-title{font-size:13px;font-weight:700;letter-spacing:.3px}
+.ab-body{font-size:12px;line-height:1.8;color:var(--tx2);margin-bottom:6px}
+.ab-issued{display:inline-block;font-size:11px;font-weight:600;padding:3px 10px;
+  border-radius:4px;background:rgba(255,255,255,.05);border:1px solid var(--br2);color:var(--tx2)}
 
-/* ── LAYOUT ── */
-.layout{display:grid;grid-template-columns:1fr 280px;min-height:calc(100vh - 110px)}
-.main-panel{padding:20px;overflow-y:auto;min-width:0}
-.side-panel{background:var(--bg2);border-left:1px solid var(--border);
-  padding:16px;overflow-y:auto;position:sticky;top:61px;height:calc(100vh - 61px)}
+/* ─── TAB NAV ─────────────────────────────────────────────── */
+.tabnav{background:var(--s1);border-bottom:1px solid var(--br);
+  padding:0 20px;display:flex;gap:0;overflow-x:auto}
+.tabnav::-webkit-scrollbar{height:0}
+.tab-btn{padding:12px 20px;font-size:13px;font-weight:600;color:var(--tx2);
+  border:none;background:none;cursor:pointer;font-family:inherit;
+  border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s}
+.tab-btn:hover{color:var(--tx)}
+.tab-btn.active{color:var(--red);border-bottom-color:var(--red)}
 
-/* ── PANEL HEADER ── */
-.panel-hd{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--faint);
-  text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;
-  border-bottom:1px solid var(--border)}
+/* ─── LAYOUT ──────────────────────────────────────────────── */
+.layout{display:grid;grid-template-columns:1fr 272px;min-height:calc(100vh - 120px);max-width:1600px;margin:0 auto}
+.main{padding:18px 20px;min-width:0;overflow-y:auto}
+.side{background:var(--s1);border-left:1px solid var(--br);padding:14px;
+  overflow-y:auto;position:sticky;top:96px;height:calc(100vh - 96px)}
 
-/* ── STATION GRID ── */
-.grid-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.grid-title{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--faint);text-transform:uppercase}
-.grid-count{font-size:11px;color:var(--faint)}
+/* Tab panels */
+.tab-panel{display:none}.tab-panel.active{display:block}
+
+/* ─── SECTION HEADER ──────────────────────────────────────── */
+.sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sec-title{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--tx3);text-transform:uppercase}
+.sec-meta{font-size:10px;color:var(--tx3)}
+
+/* ─── STATION GRID ────────────────────────────────────────── */
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 
-/* ── STATION CARD ── */
-.card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;
-  padding:14px;transition:all .2s;position:relative;overflow:hidden}
-.card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:12px 12px 0 0}
-.card.normal::after{background:var(--normal)}
-.card.watch::after{background:var(--watch)}
-.card.alert::after{background:var(--alert)}
-.card.warning::after{background:var(--warning)}
-.card.extreme::after{background:var(--extreme)}
-.card.unknown::after{background:var(--faint)}
-.card:hover{transform:translateY(-2px);border-color:var(--border2);
-  box-shadow:0 8px 32px rgba(0,0,0,.4)}
-.card.normal:hover{box-shadow:0 8px 32px var(--normal-glow)}
-.card.watch:hover{box-shadow:0 8px 32px var(--watch-glow)}
-.card.alert:hover{box-shadow:0 8px 32px var(--alert-glow)}
-.card.warning:hover{box-shadow:0 8px 32px var(--warning-glow)}
-.card.extreme:hover{box-shadow:0 8px 32px var(--extreme-glow)}
+/* ─── CARD ────────────────────────────────────────────────── */
+.card{background:var(--s2);border:1px solid var(--br);border-radius:12px;
+  padding:14px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;cursor:default}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.card.normal::before{background:var(--grn)}.card.watch::before{background:var(--ylw)}
+.card.alert::before{background:var(--org)}.card.warning::before{background:var(--red)}
+.card.extreme::before{background:var(--pur)}.card.unknown::before{background:var(--tx3)}
+.card:hover{transform:translateY(-2px)}
+.card.normal:hover{box-shadow:0 8px 24px var(--grn-a)}
+.card.watch:hover{box-shadow:0 8px 24px var(--ylw-a)}
+.card.alert:hover{box-shadow:0 8px 24px var(--org-a)}
+.card.warning:hover{box-shadow:0 8px 24px var(--red-a)}
+.card.extreme:hover{box-shadow:0 8px 24px var(--pur-a)}
 
-.card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
-.sname{font-size:13px;font-weight:700;color:var(--text);line-height:1.2}
-.sdist{font-size:10px;color:var(--muted);margin-top:2px}
-.ssrc{font-size:8px;color:var(--faint);margin-top:1px;text-transform:uppercase;letter-spacing:.8px}
+.ctop{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.cname{font-size:13px;font-weight:700;color:var(--tx);line-height:1.2}
+.cdist{font-size:10px;color:var(--tx2);margin-top:2px}
+.csrc{font-size:8px;color:var(--tx3);margin-top:1px;text-transform:uppercase;letter-spacing:.8px}
 
-/* Weather orb */
-.orb{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;
-  justify-content:center;font-size:20px;flex-shrink:0;transition:all .3s}
-.orb.normal{background:radial-gradient(circle,#fef9c3,#fef08a);box-shadow:0 0 12px #fef08a44}
-.orb.watch{background:radial-gradient(circle,#fef3c7,#f59e0b);
-  box-shadow:0 0 12px #f59e0b44;animation:orbpulse 3s ease-in-out infinite}
-.orb.alert{background:radial-gradient(circle,#ffedd5,#f97316);
-  box-shadow:0 0 16px #f9731644;animation:orbpulse 2s ease-in-out infinite}
-.orb.warning{background:radial-gradient(circle,#fee2e2,#ef4444);
-  box-shadow:0 0 20px #ef444444;animation:orbpulse 1.5s ease-in-out infinite}
-.orb.extreme{background:radial-gradient(circle,#f3e8ff,#a855f7);
-  box-shadow:0 0 20px #a855f744;animation:orbpulse 1s ease-in-out infinite}
-.orb.night{background:radial-gradient(circle,#1e293b,#334155);box-shadow:0 0 12px #94a3b822}
-@keyframes orbpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+/* Orb */
+.orb{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:18px;flex-shrink:0}
+.orb.normal{background:radial-gradient(#fef9c3,#fef08a);box-shadow:0 0 10px #fef08a33}
+.orb.watch{background:radial-gradient(#fef9c3,#eab308);box-shadow:0 0 12px #eab30833;animation:glow 3s ease-in-out infinite}
+.orb.alert{background:radial-gradient(#ffedd5,#f97316);box-shadow:0 0 14px #f9731633;animation:glow 2s ease-in-out infinite}
+.orb.warning{background:radial-gradient(#fee2e2,#ef4444);box-shadow:0 0 16px #ef444433;animation:glow 1.5s ease-in-out infinite}
+.orb.extreme{background:radial-gradient(#f3e8ff,#a855f7);box-shadow:0 0 16px #a855f733;animation:glow 1s ease-in-out infinite}
+.orb.night{background:radial-gradient(#1e293b,#334155);box-shadow:0 0 8px #94a3b822}
+@keyframes glow{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
 
-.temp-row{display:flex;align-items:baseline;gap:3px;margin-bottom:3px}
-.temp-val{font-size:30px;font-weight:800;line-height:1;letter-spacing:-1px}
-.temp-val.normal{color:var(--normal)}.temp-val.watch{color:var(--watch)}
-.temp-val.alert{color:var(--alert)}.temp-val.warning{color:var(--warning)}
-.temp-val.extreme{color:var(--extreme)}.temp-val.unknown{color:var(--muted)}
-.temp-unit{font-size:13px;color:var(--muted)}.temp-min{font-size:12px;color:var(--muted)}
+.temp-row{display:flex;align-items:baseline;gap:3px;margin-bottom:2px}
+.temp{font-size:28px;font-weight:800;line-height:1;letter-spacing:-1px}
+.temp.normal{color:var(--grn)}.temp.watch{color:var(--ylw)}
+.temp.alert{color:var(--org)}.temp.warning{color:var(--red)}
+.temp.extreme{color:var(--pur)}.temp.unknown{color:var(--tx2)}
+.tunit{font-size:13px;color:var(--tx2)}.tmin{font-size:11px;color:var(--tx2);margin-left:2px}
 
-.alert-pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;
-  font-size:10px;font-weight:600;margin-bottom:8px;border:1px solid transparent}
-.alert-pill.normal{color:var(--normal);background:#052e16;border-color:#14532d}
-.alert-pill.watch{color:var(--watch);background:#1c1000;border-color:#713f12}
-.alert-pill.alert{color:var(--alert);background:#1c0a00;border-color:#7c2d12}
-.alert-pill.warning{color:var(--warning);background:#1c0000;border-color:#7f1d1d}
-.alert-pill.extreme{color:var(--extreme);background:#1a0a2e;border-color:#581c87}
-.alert-pill.unknown{color:var(--faint);background:var(--bg4);border-color:var(--border)}
+.pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;
+  font-size:10px;font-weight:600;margin-bottom:7px;border:1px solid transparent}
+.pill.normal{color:var(--grn);background:#052e16;border-color:#14532d44}
+.pill.watch{color:var(--ylw);background:#1c1200;border-color:#71340044}
+.pill.alert{color:var(--org);background:#1c0900;border-color:#7c2d1244}
+.pill.warning{color:var(--red);background:#1c0000;border-color:#7f1d1d44}
+.pill.extreme{color:var(--pur);background:#1a0a2e;border-color:#58188744}
+.pill.unknown{color:var(--tx2);background:var(--s3);border-color:var(--br)}
 
-.wx-desc{font-size:10px;color:var(--muted);line-height:1.4;margin-bottom:8px;
+.wxdesc{font-size:10px;color:var(--tx2);line-height:1.4;margin-bottom:7px;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 
-.stats-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px}
-.stat{display:flex;flex-direction:column;gap:1px;min-width:40px}
-.stat-v{font-size:12px;font-weight:600;color:var(--text)}
-.stat-l{font-size:8px;color:var(--faint);text-transform:uppercase;letter-spacing:.5px}
-.dep-p{color:var(--alert)}.dep-n{color:var(--normal)}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:7px;align-items:flex-start}
+.stat{display:flex;flex-direction:column;gap:1px}
+.sv{font-size:11px;font-weight:600;color:var(--tx)}.sl{font-size:8px;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px}
+.dep-p{color:var(--org)}.dep-n{color:var(--grn)}
 
-/* 7-day strip */
-.fc-strip{display:flex;gap:3px;margin-bottom:8px;overflow-x:auto}
-.fc-strip::-webkit-scrollbar{height:2px}
-.fc-strip::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
-.fd{flex:1;min-width:30px;text-align:center;background:var(--bg4);
-  border-radius:6px;padding:4px 2px;border:1px solid var(--border)}
-.fd-d{font-size:7px;color:var(--faint);font-weight:700;margin-bottom:2px}
-.fd-i{font-size:11px;margin-bottom:1px}
-.fd-mx{font-size:9px;font-weight:700;color:var(--text)}
-.fd-mn{font-size:8px;color:var(--faint)}
+/* 7-day */
+.fcs{display:flex;gap:3px;margin-bottom:7px;overflow-x:auto}
+.fcs::-webkit-scrollbar{height:2px}
+.fcs::-webkit-scrollbar-thumb{background:var(--br2);border-radius:2px}
+.fd{flex:1;min-width:28px;text-align:center;background:var(--s3);border-radius:5px;
+  padding:4px 1px;border:1px solid var(--br)}
+.fdd{font-size:7px;color:var(--tx3);font-weight:700;margin-bottom:2px}
+.fdi{font-size:10px;margin-bottom:1px}.fdx{font-size:9px;font-weight:700;color:var(--tx)}
+.fdn{font-size:7px;color:var(--tx3)}
 
-.card-foot{display:flex;justify-content:space-between;align-items:center;
-  padding-top:7px;border-top:1px solid var(--border);font-size:9px;color:var(--faint)}
-.sun-times{display:flex;gap:8px}
+.cfoot{display:flex;justify-content:space-between;align-items:center;
+  padding-top:7px;border-top:1px solid var(--br);font-size:9px;color:var(--tx3)}
+.suntimes{display:flex;gap:8px}
 
-/* ── MAP ── */
-#map{width:100%;border-radius:10px;border:1px solid var(--border);
-  height:320px;margin-bottom:12px}
-.legend-item{display:flex;align-items:center;gap:6px;font-size:10px;
-  color:var(--muted);margin-bottom:4px}
-.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-
-/* ── KSDMA MAPS ── */
-.ksdma-map-card{border-radius:8px;overflow:hidden;border:1px solid var(--border);margin-bottom:8px}
-.ksdma-map-label{font-size:9px;font-weight:700;letter-spacing:1px;color:var(--muted);
-  text-transform:uppercase;padding:5px 8px;background:var(--bg4);border-bottom:1px solid var(--border)}
-.ksdma-map-card img{width:100%;display:block}
-
-/* ── LINKS ── */
-.ext-links{display:flex;flex-direction:column;gap:6px;margin-top:12px}
-.ext-link{display:flex;align-items:center;gap:8px;padding:8px 10px;
-  background:var(--bg4);border:1px solid var(--border);border-radius:8px;
-  text-decoration:none;color:var(--muted);font-size:11px;transition:all .2s}
-.ext-link:hover{border-color:var(--border2);color:var(--text)}
-.ext-link-icon{font-size:14px}
-
-/* ── UV SECTION ── */
-.uv-section{margin-top:24px;background:var(--bg3);border:1px solid var(--border);
-  border-radius:12px;overflow:hidden}
-.uv-header{padding:14px 16px;border-bottom:1px solid var(--border);
+/* ─── GRAFANA EMBED ───────────────────────────────────────── */
+.embed-section{margin-top:20px;background:var(--s2);border:1px solid var(--br);border-radius:12px;overflow:hidden}
+.embed-hd{padding:12px 16px;border-bottom:1px solid var(--br);
   display:flex;align-items:center;justify-content:space-between}
-.uv-title{font-size:13px;font-weight:700;color:var(--text)}
-.uv-badge{background:#1a1000;color:#f59e0b;border:1px solid #713f1244;
-  padding:2px 8px;border-radius:20px;font-size:9px;font-weight:700;letter-spacing:1px}
-.uv-advisory{padding:14px 16px;border-bottom:1px solid var(--border)}
-.uv-advisory p{font-size:11px;line-height:1.8;color:var(--muted);margin-bottom:6px}
+.embed-title{font-size:13px;font-weight:700;color:var(--tx)}
+.embed-badge{font-size:9px;font-weight:700;letter-spacing:1px;padding:2px 8px;
+  border-radius:20px;background:rgba(234,179,8,.1);color:var(--ylw);
+  border:1px solid rgba(234,179,8,.2)}
+.iframe-wrap{position:relative;padding-bottom:56%;height:0}
+.iframe-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+
+/* ─── ADVISORY TAB ────────────────────────────────────────── */
+.advisory-hero{background:linear-gradient(135deg,rgba(234,179,8,.08),rgba(249,115,22,.05));
+  border:1px solid rgba(234,179,8,.2);border-radius:12px;padding:20px;margin-bottom:16px}
+.advisory-hero-title{font-size:16px;font-weight:700;color:var(--ylw);margin-bottom:4px}
+.advisory-hero-sub{font-size:11px;color:var(--tx2)}
+.advisory-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.advisory-card{background:var(--s2);border:1px solid var(--br);border-radius:10px;padding:16px}
+.advisory-card-title{font-size:11px;font-weight:700;color:var(--ylw);
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;
+  padding-bottom:6px;border-bottom:1px solid var(--br)}
+.advisory-card ul{padding-left:0;list-style:none}
+.advisory-card li{font-size:12px;line-height:1.9;color:var(--tx2);
+  padding-left:14px;position:relative;margin-bottom:2px}
+.advisory-card li::before{content:'›';position:absolute;left:0;color:var(--ylw)}
+.advisory-issued{margin-top:14px;padding:8px 14px;background:rgba(234,179,8,.06);
+  border:1px solid rgba(234,179,8,.15);border-radius:6px;font-size:11px;color:var(--tx2)}
+
+/* ─── UV TAB ──────────────────────────────────────────────── */
+.uv-intro{background:linear-gradient(135deg,rgba(239,68,68,.08),rgba(249,115,22,.05));
+  border:1px solid rgba(239,68,68,.2);border-radius:12px;padding:20px;margin-bottom:16px}
+.uv-intro-title{font-size:16px;font-weight:700;color:var(--org);margin-bottom:6px}
+.uv-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px}
+.uv-scale{border-radius:8px;padding:10px 8px;text-align:center;border:1px solid var(--br)}
+.uv-scale-num{font-size:20px;font-weight:800;line-height:1;margin-bottom:3px}
+.uv-scale-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.uv-advisory{background:var(--s2);border:1px solid var(--br);border-radius:10px;padding:16px;margin-bottom:16px}
+.uv-advisory p{font-size:12px;line-height:1.9;color:var(--tx2);margin-bottom:6px}
 .uv-advisory p:last-child{margin-bottom:0}
-.uv-iframe-wrap{position:relative;padding-bottom:60%;height:0}
-.uv-iframe-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
 
-/* ── ADVISORY SECTION ── */
-.advisory-section{margin-top:16px;background:var(--bg3);border:1px solid var(--border);border-radius:12px;overflow:hidden}
-.advisory-toggle{width:100%;padding:14px 16px;background:none;border:none;
-  color:var(--text);font-family:inherit;font-size:13px;font-weight:700;
-  text-align:left;cursor:pointer;display:flex;align-items:center;justify-content:space-between}
-.advisory-toggle:hover{background:var(--bg4)}
-.advisory-toggle .arrow{font-size:10px;color:var(--muted);transition:transform .2s}
-.advisory-toggle.open .arrow{transform:rotate(180deg)}
-.advisory-body{display:none;padding:14px 16px;border-top:1px solid var(--border)}
-.advisory-body.visible{display:block}
-.advisory-body p{font-size:11px;line-height:2;color:var(--muted);margin-bottom:6px}
-.advisory-body ul{padding-left:16px;margin-bottom:8px}
-.advisory-body li{font-size:11px;line-height:1.9;color:var(--muted)}
+/* ─── SIDE PANEL ──────────────────────────────────────────── */
+.side-hd{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--tx3);
+  text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--br)}
+#map{width:100%;height:280px;border-radius:8px;border:1px solid var(--br);margin-bottom:10px}
+.leg{display:flex;align-items:center;gap:5px;font-size:9px;color:var(--tx2);margin-bottom:3px}
+.ld{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.side-maps{margin-top:10px}
+.smap-card{border-radius:7px;overflow:hidden;border:1px solid var(--br);margin-bottom:7px;cursor:pointer;transition:opacity .2s}
+.smap-card:hover{opacity:.85}
+.smap-lbl{font-size:8px;font-weight:700;letter-spacing:1px;color:var(--tx2);
+  text-transform:uppercase;padding:4px 8px;background:var(--s3);border-bottom:1px solid var(--br)}
+.smap-card img{width:100%;display:block}
+.ext-links{display:flex;flex-direction:column;gap:5px;margin-top:10px}
+.elink{display:flex;align-items:center;gap:7px;padding:7px 9px;
+  background:var(--s2);border:1px solid var(--br);border-radius:7px;
+  font-size:10px;color:var(--tx2);transition:all .2s}
+.elink:hover{border-color:var(--br2);color:var(--tx);background:var(--s3)}
+.elink-ico{font-size:13px;flex-shrink:0}
 
-/* ── FOOTER ── */
-footer{background:var(--bg2);border-top:1px solid var(--border);
-  padding:16px 20px;text-align:center;font-size:10px;color:var(--faint);line-height:2}
-footer a{color:var(--muted);text-decoration:none}
-footer a:hover{color:var(--text)}
+/* ─── MAP MODAL ───────────────────────────────────────────── */
+.modal{position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.85);
+  display:none;align-items:center;justify-content:center;padding:20px}
+.modal.open{display:flex}
+.modal-inner{position:relative;max-width:90vw;max-height:90vh}
+.modal-inner img{max-width:100%;max-height:85vh;border-radius:8px;display:block}
+.modal-close{position:absolute;top:-14px;right:-14px;width:32px;height:32px;
+  border-radius:50%;background:var(--red);border:none;color:#fff;font-size:16px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-weight:700;z-index:8001}
 
-/* ── SCROLLBAR ── */
+/* ─── FOOTER ──────────────────────────────────────────────── */
+footer{background:var(--s1);border-top:1px solid var(--br);
+  padding:14px 20px;text-align:center;font-size:10px;color:var(--tx3);line-height:2}
+footer a{color:var(--tx2)}footer a:hover{color:var(--tx)}
+
+/* ─── SCROLLBARS ──────────────────────────────────────────── */
 ::-webkit-scrollbar{width:4px;height:4px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--br2);border-radius:2px}
 
-/* ── RESPONSIVE ── */
+/* ─── RESPONSIVE ──────────────────────────────────────────── */
 @media(max-width:1100px){.grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:768px){
+@media(max-width:900px){
   .layout{grid-template-columns:1fr}
-  .side-panel{position:static;height:auto;border-left:none;border-top:1px solid var(--border)}
+  .side{position:static;height:auto;border-left:none;border-top:1px solid var(--br)}
+  #map{height:220px}
+}
+@media(max-width:600px){
   .grid{grid-template-columns:1fr}
-  #map{height:250px}
+  .uv-grid{grid-template-columns:repeat(3,1fr)}
+  header{padding:0 12px}
+  .hname{font-size:14px}
+  .main{padding:12px}
 }
 </style>
 </head>
@@ -234,156 +263,341 @@ footer a:hover{color:var(--text)}
 
 <!-- LOADING -->
 <div id="loading">
-  <div class="load-icon">🌡️</div>
-  <div class="load-title">KERALA HEAT WATCH</div>
-  <div class="load-sub ml">കേരള ചൂട് നിരീക്ഷണം · IMD + KSDMA</div>
-  <div class="load-bar"><div class="load-fill"></div></div>
+  <div class="li">🌡️</div>
+  <div class="lt">KERALA HEAT WATCH</div>
+  <div class="ls ml">കേരള ചൂട് നിരീക്ഷണം · IMD + KSDMA</div>
+  <div class="lb"><div class="lf"></div></div>
+</div>
+
+<!-- MAP MODAL -->
+<div class="modal" id="modal" onclick="closeModal()">
+  <div class="modal-inner" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <img id="modal-img" src="" alt="KSDMA Map"/>
+  </div>
 </div>
 
 <!-- HEADER -->
 <header>
-  <div class="logo-row">
-    <div class="live-dot"></div>
+  <div class="hlogo">
+    <div class="dot"></div>
     <div>
-      <div class="logo-text">Kerala <span>Heat</span> Watch</div>
-      <div class="logo-sub ml">കേരള ചൂട് നിരീക്ഷണം</div>
+      <div class="hname">Kerala <span>Heat</span> Watch</div>
+      <div class="hsub ml">കേരള ചൂട് നിരീക്ഷണം</div>
     </div>
   </div>
-  <div class="header-badges">
-    <span class="badge badge-imd">IMD LIVE</span>
-    <span class="badge badge-live" id="updated-badge">Loading...</span>
-    <span class="issued-time ml" id="issued-time" style="display:none"></span>
+  <div class="hright">
+    <span class="hbadge" id="updated-badge">Loading...</span>
+    <span id="issued-badge" class="ml"></span>
+    <button class="lang-btn active-lang" id="lang-ml" onclick="setLang('ml')">മലയാളം</button>
+    <button class="lang-btn" id="lang-en" onclick="setLang('en')">English</button>
   </div>
 </header>
 
-<!-- KSDMA ALERT BAR -->
-<div class="alert-bar" id="alert-bar">
-  <div class="alert-bar-inner">
-    <div class="alert-header">
-      <span class="ksdma-badge" id="ksdma-badge">KSDMA</span>
-      <span class="alert-title ml" id="alert-title"></span>
+<!-- ALERT BAR -->
+<div id="alert-bar">
+  <div class="ab-inner">
+    <div class="ab-top">
+      <span class="ab-badge" id="ab-badge">KSEOC-KSDMA</span>
+      <span class="ab-title ml" id="ab-title"></span>
     </div>
-    <div class="alert-body ml" id="alert-body"></div>
+    <div class="ab-body ml" id="ab-body"></div>
+    <span class="ab-issued ml" id="ab-issued" style="display:none"></span>
   </div>
+</div>
+
+<!-- TAB NAV -->
+<div class="tabnav">
+  <button class="tab-btn active" onclick="switchTab('weather',this)" data-ml="🌡️ കാലാവസ്ഥ" data-en="🌡️ Weather">🌡️ കാലാവസ്ഥ</button>
+  <button class="tab-btn" onclick="switchTab('advisory',this)" data-ml="⚠️ ജാഗ്രത നിർദേശങ്ങൾ" data-en="⚠️ Advisory">⚠️ ജാഗ്രത നിർദേശങ്ങൾ</button>
+  <button class="tab-btn" onclick="switchTab('uv',this)" data-ml="🔆 UV സൂചിക" data-en="🔆 UV Index">🔆 UV സൂചിക</button>
+</div>
+
+<!-- DISCLAIMER -->
+<div style="background:#0d1117;border-bottom:1px solid #1e2736;padding:7px 20px;
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+  <span style="font-size:13px;flex-shrink:0">ℹ️</span>
+  <span style="font-size:11px;color:#64748b;line-height:1.6">
+    This dashboard aggregates data from IMD and KSDMA for informational purposes only.
+    Data may have delays or gaps. For official warnings and accurate forecasts, always refer to
+    <a href="https://sdma.kerala.gov.in/" target="_blank" rel="noopener"
+      style="color:#94a3b8;text-decoration:underline">sdma.kerala.gov.in</a> and
+    <a href="https://mausam.imd.gov.in/thiruvananthapuram/" target="_blank" rel="noopener"
+      style="color:#94a3b8;text-decoration:underline">IMD Thiruvananthapuram</a>.
+    <span class="ml" style="color:#4b5563"> · ഔദ്യോഗിക മുന്നറിയിപ്പുകൾക്ക് എല്ലായ്പ്പോഴും KSDMA, IMD സൈറ്റുകൾ പരിശോധിക്കുക.</span>
+  </span>
 </div>
 
 <!-- LAYOUT -->
 <div class="layout">
 
-  <!-- MAIN PANEL -->
-  <div class="main-panel">
+  <!-- MAIN -->
+  <div class="main">
 
-    <!-- Station grid -->
-    <div class="grid-header">
-      <div class="grid-title">Weather Stations</div>
-      <div class="grid-count" id="grid-count"></div>
-    </div>
-    <div class="grid" id="grid"></div>
-
-    <!-- UV Section -->
-    <div class="uv-section" id="uv-section" style="display:none">
-      <div class="uv-header">
-        <div class="uv-title ml">🔆 UV സൂചിക — KSDMA IoT ശൃംഖല</div>
-        <span class="uv-badge">LIVE · 30s</span>
+    <!-- WEATHER TAB -->
+    <div class="tab-panel active" id="tab-weather">
+      <div class="sec-hd">
+        <div class="sec-title" data-ml="കാലാവസ്ഥ നിലയങ്ങൾ" data-en="Weather Stations">കാലാവസ്ഥ നിലയങ്ങൾ</div>
+        <div class="sec-meta" id="grid-meta"></div>
       </div>
-      <div class="uv-advisory ml" id="uv-advisory"></div>
-      <div class="uv-iframe-wrap">
-        <iframe src="https://visualize.openiot.in/d/21I1RLOVJ3/lorawan-kerala-cluster?orgId=2&refresh=30s&kiosk"
-          allowfullscreen loading="lazy" title="Kerala UV Index Live Dashboard"></iframe>
+      <div class="grid" id="grid"></div>
+
+      <!-- AWS Cluster embed -->
+      <div class="embed-section" id="aws-embed" style="display:none">
+        <div class="embed-hd">
+          <div class="embed-title" data-ml="📡 KSDMA IoT AWS ക്ലസ്റ്റർ — തത്സമയ ഡാറ്റ" data-en="📡 KSDMA IoT AWS Cluster — Live Data">
+            📡 KSDMA IoT AWS ക്ലസ്റ്റർ — തത്സമയ ഡാറ്റ</div>
+          <span class="embed-badge">LIVE · IoT</span>
+        </div>
+        <div class="iframe-wrap">
+          <iframe src="https://visualize.openiot.in/d/FBvwdZg4kjjjdad/aws-cluster?orgId=2&refresh=30s&kiosk"
+            allowfullscreen loading="lazy" title="KSDMA AWS Cluster"></iframe>
+        </div>
       </div>
     </div>
 
-    <!-- Cautionary advisory -->
-    <div class="advisory-section" id="advisory-section" style="display:none">
-      <button class="advisory-toggle" onclick="toggleAdvisory(this)">
-        <span class="ml">⚠️ ചൂട് — പൊതുജന ജാഗ്രത നിർദേശങ്ങൾ (KSDMA)</span>
-        <span class="arrow">▼</span>
-      </button>
-      <div class="advisory-body ml" id="advisory-body"></div>
+    <!-- ADVISORY TAB -->
+    <div class="tab-panel" id="tab-advisory">
+      <div class="advisory-hero ml">
+        <div class="advisory-hero-title">⚠️ ഉയർന്ന ചൂട് — പൊതുജന ജാഗ്രത നിർദേശങ്ങൾ</div>
+        <div class="advisory-hero-sub">കേരള സംസ്ഥാന ദുരന്ത നിവാരണ അതോറിറ്റി (KSEOC-KSDMA) · ഔദ്യോഗിക നിർദേശങ്ങൾ</div>
+      </div>
+
+      <div class="advisory-grid ml">
+        <div class="advisory-card">
+          <div class="advisory-card-title">☀️ സൂര്യപ്രകാശം ഒഴിവാക്കുക</div>
+          <ul>
+            <li>പകൽ 11 AM – 3 PM സമയത്ത് നേരിട്ട് സൂര്യപ്രകാശം ഏൽക്കുന്നത് ഒഴിവാക്കുക</li>
+            <li>പുറത്തിറങ്ങുമ്പോൾ കുടയോ തൊപ്പിയോ ഉപയോഗിക്കുക</li>
+            <li>പാദരക്ഷകൾ ധരിക്കുക</li>
+            <li>അയഞ്ഞ ഇളം നിറത്തിലുള്ള കോട്ടൺ വസ്ത്രങ്ങൾ ധരിക്കുക</li>
+          </ul>
+        </div>
+        <div class="advisory-card">
+          <div class="advisory-card-title">💧 ജലം കുടിക്കുക</div>
+          <ul>
+            <li>ദാഹമില്ലെങ്കിലും വെള്ളം കുടിക്കുന്നത് തുടരുക</li>
+            <li>ORS ലായനി, സംഭാരം ഉപയോഗിക്കുക</li>
+            <li>മദ്യം, കാഫി, കാർബണേറ്റഡ് പാനീയങ്ങൾ ഒഴിവാക്കുക</li>
+            <li>എപ്പോഴും ഒരു കുപ്പി വെള്ളം കൈയ്യിൽ കരുതുക</li>
+          </ul>
+        </div>
+        <div class="advisory-card">
+          <div class="advisory-card-title">🍎 ഭക്ഷണം</div>
+          <ul>
+            <li>പഴങ്ങളും പച്ചക്കറികളും ധാരാളമായി കഴിക്കുക</li>
+            <li>ഭക്ഷണ ഡെലിവറി തൊഴിലാളികൾ 11–3 മണിക്കൂർ ശ്രദ്ധിക്കുക</li>
+            <li>അസ്വസ്ഥത അനുഭവപ്പെട്ടാൽ ഉടനെ വൈദ്യസഹായം തേടുക</li>
+          </ul>
+        </div>
+        <div class="advisory-card">
+          <div class="advisory-card-title">👶 കുട്ടികളും വൃദ്ധരും</div>
+          <ul>
+            <li>കിടപ്പ് രോഗികൾ, ഗർഭിണികൾ, കുട്ടികൾ — 11–3 PM നേരിട്ട് വെയിൽ ഒഴിവാക്കുക</li>
+            <li>സ്കൂൾ അസംബ്ലി, ഉച്ച വ്യായാമം ഒഴിവാക്കുക</li>
+            <li>പാർക്ക് ചെയ്ത വാഹനത്തിൽ കുട്ടികളെ ഇരുത്തി പോകരുത്</li>
+            <li>അംഗനവാടി — ചൂട് ഏൽക്കാതിരിക്കാൻ സംവിധാനം ഒരുക്കുക</li>
+          </ul>
+        </div>
+        <div class="advisory-card">
+          <div class="advisory-card-title">👷 തൊഴിലാളികൾ</div>
+          <ul>
+            <li>നിർമാണം, കൃഷി, വഴിയോരം — ജോലി സമയം ക്രമീകരിക്കുക</li>
+            <li>ഉച്ച സമയത്ത് ആവശ്യമായ വിശ്രമം ഉറപ്പ് വരുത്തുക</li>
+            <li>മാധ്യമ, പോലീസ് ഉദ്യോഗസ്ഥർ — കുട ഉപയോഗിക്കുക</li>
+            <li>കുടിവെള്ളം ലഭ്യമാക്കുക</li>
+          </ul>
+        </div>
+        <div class="advisory-card">
+          <div class="advisory-card-title">🔥 അഗ്നി സുരക്ഷ</div>
+          <ul>
+            <li>മാർക്കറ്റ്, ഡംപിംഗ് യാർഡ് — ഫയർ ഓഡിറ്റ് നടത്തുക</li>
+            <li>കാട്ടുതീ — വനം വകുപ്പ് നിർദേശങ്ങൾ പാലിക്കുക</li>
+            <li>ഉയർന്ന ചൂടിൽ തീ വ്യാപിക്കാൻ സാധ്യത കൂടുതൽ</li>
+          </ul>
+        </div>
+        <div class="advisory-card">
+          <div class="advisory-card-title">🐄 മൃഗങ്ങൾ</div>
+          <ul>
+            <li>ഉച്ചവെയിലിൽ കന്നുകാലികളെ മേയ്ക്കരുത്</li>
+            <li>മൃഗങ്ങൾക്കും പക്ഷികൾക്കും ജലലഭ്യത ഉറപ്പ് വരുത്തുക</li>
+            <li>വളർത്തുമൃഗങ്ങളെ വാഹനത്തിൽ ഇരുത്തി പോകരുത്</li>
+          </ul>
+        </div>
+        <div class="advisory-card">
+          <div class="advisory-card-title">💧 ജല സംരക്ഷണം</div>
+          <ul>
+            <li>ജലം പാഴാക്കാതെ ഉപയോഗിക്കുക</li>
+            <li>മഴ ലഭിക്കുമ്പോൾ പരമാവധി ജലം സംഭരിക്കുക</li>
+            <li>ഔദ്യോഗിക കാലാവസ്ഥ മുന്നറിയിപ്പുകൾ ശ്രദ്ധിക്കുക</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="advisory-issued ml" id="advisory-issued" style="display:none"></div>
     </div>
 
-  </div>
+    <!-- UV TAB -->
+    <div class="tab-panel" id="tab-uv">
+      <div class="uv-intro ml">
+        <div class="uv-intro-title">🔆 UV സൂചിക — KSDMA IoT നിരീക്ഷണം</div>
+        <p style="font-size:12px;color:var(--tx2);line-height:1.8;margin-top:6px">
+          കേരളത്തിൽ KSDMA / ICFOSS സ്ഥാപിച്ച 14 IoT സ്റ്റേഷനുകളിൽ നിന്നുള്ള തത്സമയ UV സൂചിക.
+          തുടർച്ചയായി UV രശ്മികൾ ഏൽക്കുന്നത് സൂര്യാതപം, ത്വക്ക് രോഗം, നേത്രരോഗം എന്നിവയ്ക്ക് കാരണമാകും.
+          പകൽ 10 AM – 3 PM ഏറ്റവും ഉയർന്ന UV സൂചിക രേഖപ്പെടുത്തപ്പെടുന്നു.
+        </p>
+      </div>
+
+      <!-- UV Scale -->
+      <div class="uv-grid" style="margin-bottom:16px">
+        <div class="uv-scale" style="background:rgba(34,197,94,.1);border-color:#14532d">
+          <div class="uv-scale-num" style="color:#22c55e">0–2</div>
+          <div class="uv-scale-lbl" style="color:#22c55e">Low</div>
+        </div>
+        <div class="uv-scale" style="background:rgba(234,179,8,.1);border-color:#713f12">
+          <div class="uv-scale-num" style="color:#eab308">3–5</div>
+          <div class="uv-scale-lbl" style="color:#eab308">Moderate</div>
+        </div>
+        <div class="uv-scale" style="background:rgba(249,115,22,.1);border-color:#7c2d12">
+          <div class="uv-scale-num" style="color:#f97316">6–7</div>
+          <div class="uv-scale-lbl" style="color:#f97316">High</div>
+        </div>
+        <div class="uv-scale" style="background:rgba(239,68,68,.1);border-color:#7f1d1d">
+          <div class="uv-scale-num" style="color:#ef4444">8–10</div>
+          <div class="uv-scale-lbl" style="color:#ef4444">Very High</div>
+        </div>
+        <div class="uv-scale" style="background:rgba(168,85,247,.1);border-color:#581c87">
+          <div class="uv-scale-num" style="color:#a855f7">11+</div>
+          <div class="uv-scale-lbl" style="color:#a855f7">Extreme</div>
+        </div>
+      </div>
+
+      <!-- UV Advisory -->
+      <div class="uv-advisory ml">
+        <p>പകൽ 10 മണി മുതൽ 3 മണി വരെ UV സൂചിക ഏറ്റവും ഉയർന്നതായിരിക്കും. ഈ സമയത്ത് പുറത്ത് ഇറങ്ങുമ്പോൾ തൊപ്പി, കുട, സൺഗ്ലാസ് ഉപയോഗിക്കുക. ശരീരം മൂടുന്ന കോട്ടൺ വസ്ത്രങ്ങൾ ധരിക്കുക.</p>
+        <p>പുറം ജോലിക്കാർ, മത്സ്യത്തൊഴിലാളികൾ, ബൈക്ക് യാത്രക്കാർ, ജലഗതാഗതം, ചർമ/നേത്രരോഗികൾ — പ്രത്യേകം ജാഗ്രത പാലിക്കണം. മലമ്പ്രദേശ, ജലാശയ, മണൽ മേഖലകളിൽ UV കൂടുതലായിരിക്കും.</p>
+        <p>Source: KSDMA · ICFOSS OpenIoT · <a href="https://visualize.openiot.in/d/21I1RLOVJ3/lorawan-kerala-cluster?orgId=2&refresh=30s" target="_blank" style="color:var(--ylw)">Live Dashboard →</a></p>
+      </div>
+
+      <!-- Kerala UV Cluster -->
+      <div class="embed-section">
+        <div class="embed-hd">
+          <div class="embed-title">🗺️ Kerala UV Cluster — All Districts</div>
+          <span class="embed-badge">LIVE · 30s</span>
+        </div>
+        <div class="iframe-wrap" style="padding-bottom:65%">
+          <iframe src="https://visualize.openiot.in/d/21I1RLOVJ3/lorawan-kerala-cluster?orgId=2&refresh=30s&kiosk"
+            allowfullscreen loading="lazy" title="Kerala UV Cluster"></iframe>
+        </div>
+      </div>
+
+      <!-- AWS Cluster -->
+      <div class="embed-section" style="margin-top:16px">
+        <div class="embed-hd">
+          <div class="embed-title">📡 AWS Cluster — IoT Sensor Network</div>
+          <span class="embed-badge">LIVE · IoT</span>
+        </div>
+        <div class="iframe-wrap" style="padding-bottom:65%">
+          <iframe src="https://visualize.openiot.in/d/FBvwdZg4kjjjdad/aws-cluster?orgId=2&refresh=30s&kiosk"
+            allowfullscreen loading="lazy" title="AWS Cluster"></iframe>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
 
   <!-- SIDE PANEL -->
-  <div class="side-panel">
-
-    <!-- Map -->
-    <div class="panel-hd">Kerala — Station Map</div>
+  <div class="side">
+    <div class="side-hd" data-ml="കേരള — നിലയ ഭൂപടം" data-en="Kerala — Station Map">കേരള — നിലയ ഭൂപടം</div>
     <div id="map"></div>
 
-    <!-- Legend -->
-    <div style="margin-bottom:12px">
-      <div class="legend-item"><div class="legend-dot" style="background:var(--normal)"></div>Normal &lt;36°C</div>
-      <div class="legend-item"><div class="legend-dot" style="background:var(--watch)"></div>Watch 36–38°C</div>
-      <div class="legend-item"><div class="legend-dot" style="background:var(--alert)"></div>Alert 38–40°C</div>
-      <div class="legend-item"><div class="legend-dot" style="background:var(--warning)"></div>Warning &gt;40°C</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#fff;border:1.5px solid #888"></div>AWS (observed)</div>
+    <div style="margin-bottom:10px">
+      <div class="leg"><div class="ld" style="background:var(--grn)"></div><span data-ml="സാധാരണ &lt;36°C" data-en="Normal &lt;36°C">സാധാരണ &lt;36°C</span></div>
+      <div class="leg"><div class="ld" style="background:var(--ylw)"></div><span data-ml="ജാഗ്രത 36–38°C" data-en="Watch 36–38°C">ജാഗ്രത 36–38°C</span></div>
+      <div class="leg"><div class="ld" style="background:var(--org)"></div><span data-ml="അലേർട്ട് 38–40°C" data-en="Alert 38–40°C">അലേർട്ട് 38–40°C</span></div>
+      <div class="leg"><div class="ld" style="background:var(--red)"></div><span data-ml="മുന്നറിയിപ്പ് &gt;40°C" data-en="Warning &gt;40°C">മുന്നറിയിപ്പ് &gt;40°C</span></div>
     </div>
 
-    <!-- KSDMA maps -->
-    <div id="ksdma-maps"></div>
+    <div class="side-maps" id="side-maps"></div>
 
-    <!-- External links -->
-    <div class="panel-hd" style="margin-top:12px">Official Sources</div>
+    <div class="side-hd" style="margin-top:12px" data-ml="ഔദ്യോഗിക ലിങ്കുകൾ" data-en="Official Sources">ഔദ്യോഗിക ലിങ്കുകൾ</div>
     <div class="ext-links">
-      <a class="ext-link" href="https://sdma.kerala.gov.in/" target="_blank" rel="noopener">
-        <span class="ext-link-icon">🛡️</span>
-        <span>KSDMA — Kerala SDMA</span>
+      <a class="elink" href="https://sdma.kerala.gov.in/" target="_blank" rel="noopener">
+        <span class="elink-ico">🛡️</span><span>KSDMA Kerala</span>
       </a>
-      <a class="ext-link" href="https://mausam.imd.gov.in/thiruvananthapuram/" target="_blank" rel="noopener">
-        <span class="ext-link-icon">🌦️</span>
-        <span>IMD Thiruvananthapuram</span>
+      <a class="elink" href="https://mausam.imd.gov.in/thiruvananthapuram/" target="_blank" rel="noopener">
+        <span class="elink-ico">🌦️</span><span>IMD Thiruvananthapuram</span>
       </a>
-      <a class="ext-link" href="https://dss.imd.gov.in/dwr_img/GIS/heatwave.html" target="_blank" rel="noopener">
-        <span class="ext-link-icon">🗺️</span>
-        <span>IMD Heatwave Map</span>
+      <a class="elink" href="https://dss.imd.gov.in/dwr_img/GIS/heatwave.html" target="_blank" rel="noopener">
+        <span class="elink-ico">🗺️</span><span>IMD Heatwave Map</span>
       </a>
-      <a class="ext-link" href="https://visualize.openiot.in/d/21I1RLOVJ3/lorawan-kerala-cluster?orgId=2&refresh=30s" target="_blank" rel="noopener">
-        <span class="ext-link-icon">📡</span>
-        <span>KSDMA IoT UV Dashboard</span>
+      <a class="elink" href="https://visualize.openiot.in/d/21I1RLOVJ3/lorawan-kerala-cluster?orgId=2&refresh=30s" target="_blank" rel="noopener">
+        <span class="elink-ico">📡</span><span>KSDMA UV Dashboard</span>
       </a>
     </div>
-
   </div>
-</div>
 
-<!-- FOOTER -->
+</div><!-- /layout -->
+
 <footer>
-  Data sources: India Meteorological Department ·
-  <a href="https://sdma.kerala.gov.in/" target="_blank">Kerala SDMA</a> ·
+  Data: <a href="https://mausam.imd.gov.in" target="_blank">India Meteorological Department</a> ·
+  <a href="https://sdma.kerala.gov.in" target="_blank">Kerala SDMA</a> ·
   <a href="https://visualize.openiot.in" target="_blank">ICFOSS OpenIoT</a>
-  <br>
-  Station data updates every 4 hours via GitHub Actions ·
-  Built with IMD DSS GeoJSON + KSDMA alerts
+  · Updates every 4 hours · Station data from IMD DSS GeoJSON
 </footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-// ── CONFIG ────────────────────────────────────────────────────────────────
+// ── CONSTANTS ─────────────────────────────────────────────────────────────
 const WEATHER_URL = 'data/weather.json';
 const GEOJSON_URL = 'https://raw.githubusercontent.com/medonthomas-alt/Kerala_Open_Maps/main/data/administrative/districts/Kerala_LGD_Districts.geojson';
+let currentLang = 'ml';
 
-// UV advisory text (hardcoded Malayalam from KSDMA)
-const UV_ADVISORY_ML = `
-<p>കേരളത്തിൽ കഴിഞ്ഞ 24 മണിക്കൂറിൽ രേഖപ്പെടുത്തപ്പെട്ട ഉയർന്ന അൾട്രാവയലറ്റ് സൂചിക. തുടർച്ചയായി കൂടുതൽ സമയം അൾട്രാവയലറ്റ് രശ്മികൾ ശരീരത്തിൽ ഏൽക്കുന്നത് സൂര്യാതപത്തിനും ത്വക്ക് രോഗങ്ങൾക്കും നേത്രരോഗങ്ങൾക്കും കാരണമാകാം.</p>
-<p>പകൽ 10 മണി മുതൽ 3 മണി വരെ ഉയർന്ന UV സൂചിക രേഖപ്പെടുത്തപ്പെടുന്നു. ആ സമയങ്ങളിൽ നേരിട്ട് സൂര്യപ്രകാശം ഏൽക്കുന്നത് ഒഴിവാക്കുക. തൊപ്പി, കുട, സൺഗ്ലാസ് ഉപയോഗിക്കുക.</p>
-<p>സംസ്ഥാന ദുരന്ത നിവാരണ അതോറിറ്റി സ്ഥാപിച്ച 14 സ്റ്റേഷനുകളിലെ തത്സമയ UV സൂചിക — Source: KSDMA / ICFOSS OpenIoT</p>`;
-
-// ── HELPERS ───────────────────────────────────────────────────────────────
-function isNight(sunrise, sunset) {
-  if (!sunrise || !sunset) return false;
-  const now = new Date();
-  const istMin = (now.getUTCHours() * 60 + now.getUTCMinutes() + 330) % 1440;
-  const parse  = t => { const p = t.split(':'); return +p[0]*60 + +p[1]; };
-  return istMin < parse(sunrise) || istMin > parse(sunset);
+// ── LANGUAGE ──────────────────────────────────────────────────────────────
+function setLang(lang) {
+  currentLang = lang;
+  document.getElementById('lang-ml').classList.toggle('active-lang', lang === 'ml');
+  document.getElementById('lang-en').classList.toggle('active-lang', lang === 'en');
+  // Update all elements with data-ml / data-en
+  document.querySelectorAll('[data-ml]').forEach(el => {
+    el.textContent = lang === 'ml' ? el.dataset.ml : el.dataset.en;
+  });
 }
 
-function wxEmoji(desc) {
+// ── TABS ──────────────────────────────────────────────────────────────────
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────
+function openModal(src) {
+  document.getElementById('modal-img').src = src;
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+function isNight(sr, ss) {
+  if (!sr || !ss) return false;
+  const p = t => { const x = t.split(':'); return +x[0]*60 + +x[1]; };
+  const now = new Date();
+  const ist = (now.getUTCHours()*60 + now.getUTCMinutes() + 330) % 1440;
+  return ist < p(sr) || ist > p(ss);
+}
+
+function wxIcon(desc) {
   if (!desc) return '🌤';
   const d = desc.toLowerCase();
   if (d.includes('thunder') || d.includes('lightning')) return '⛈';
   if (d.includes('heavy rain')) return '🌧';
-  if (d.includes('light rain') || d.includes('drizzle')) return '🌦';
   if (d.includes('rain') || d.includes('shower')) return '🌦';
   if (d.includes('snow')) return '❄';
   if (d.includes('fog') || d.includes('mist')) return '🌫';
@@ -394,234 +608,181 @@ function wxEmoji(desc) {
   return '🌤';
 }
 
-function dayLabel(offset) {
-  const d = new Date(); d.setDate(d.getDate() + offset);
-  return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
+function dayLbl(n) {
+  const d = new Date(); d.setDate(d.getDate() + n);
+  return ['Su','Mo','Tu','We','Th','Fr','Sa'][d.getDay()];
 }
 
-function fmtTime(t) { return t ? t.substring(0,5) : '--'; }
-
-function fmtUpdated(iso) {
+function fmtIST(iso) {
   if (!iso) return '--';
-  const d = new Date(iso);
-  const ist = new Date(d.getTime() + 5.5*3600000);
-  return ist.toUTCString().replace('GMT','').trim().slice(0,-3) + ' IST';
-}
-
-function fmtShort(iso) {
-  if (!iso) return '--';
-  const d = new Date(iso);
-  const ist = new Date(d.getTime() + 5.5*3600000);
-  const hh = String(ist.getUTCHours()).padStart(2,'0');
-  const mm = String(ist.getUTCMinutes()).padStart(2,'0');
-  return `${hh}:${mm} IST`;
+  const d = new Date(new Date(iso).getTime() + 5.5*3600000);
+  return String(d.getUTCHours()).padStart(2,'0') + ':' + String(d.getUTCMinutes()).padStart(2,'0') + ' IST';
 }
 
 // ── BUILD CARD ────────────────────────────────────────────────────────────
 function buildCard(st, fetchedAt) {
-  const temp    = st.fc_max ?? st.obs_max;
-  const level   = st.alert?.level ?? 'unknown';
-  const mlLabel = st.alert?.ml ?? '--';
-  const night   = isNight(st.sunrise, st.sunset);
-  const orbCls  = night ? 'night' : level;
-  const orbIcon = night ? '🌙' : '☀️';
-  const dep     = st.fc_dep ?? st.obs_dep;
+  const temp  = st.fc_max ?? st.obs_max;
+  const level = st.alert?.level ?? 'unknown';
+  const mlLbl = st.alert?.ml ?? '--';
+  const enLbl = st.alert?.en ?? '--';
+  const night = isNight(st.sunrise, st.sunset);
+  const orb   = night ? 'night' : level;
+  const icon  = night ? '🌙' : '☀️';
+  const dep   = st.fc_dep ?? st.obs_dep;
 
-  const days = [2,3,4,5,6,7].map(i => ({
-    day: dayLabel(i-1),
-    max: st[`day${i}_max`],
-    min: st[`day${i}_min`],
-    wx:  st[`day${i}_weather`],
-  }));
-
-  const forecastHtml = days.map(d => `
+  const fcs = [2,3,4,5,6,7].map(i => `
     <div class="fd">
-      <div class="fd-d">${d.day}</div>
-      <div class="fd-i">${wxEmoji(d.wx)}</div>
-      <div class="fd-mx">${d.max ?? '--'}°</div>
-      <div class="fd-mn">${d.min ?? '--'}°</div>
+      <div class="fdd">${dayLbl(i-1)}</div>
+      <div class="fdi">${wxIcon(st['day'+i+'_weather'])}</div>
+      <div class="fdx">${st['day'+i+'_max'] ?? '--'}°</div>
+      <div class="fdn">${st['day'+i+'_min'] ?? '--'}°</div>
     </div>`).join('');
 
-  const depHtml = dep !== null && dep !== undefined
-    ? `<div class="stat"><div class="stat-v ${dep>0?'dep-p':dep<0?'dep-n':''}">${dep>0?'+':''}${dep}°</div><div class="stat-l">Dep</div></div>`
-    : '';
+  const depH = dep != null
+    ? `<div class="stat"><div class="sv ${dep>0?'dep-p':dep<0?'dep-n':''}">${dep>0?'+':''}${dep}°</div><div class="sl">Dep</div></div>`:'';
+  const humH = st.humidity != null
+    ? `<div class="stat"><div class="sv">💧${st.humidity}%</div><div class="sl">Hum</div></div>`:'';
+  const rnH  = st.rainfall && st.rainfall!=='NIL'
+    ? `<div class="stat"><div class="sv">🌧${st.rainfall}</div><div class="sl">Rain</div></div>`:'';
 
-  const humHtml = st.humidity !== null && st.humidity !== undefined
-    ? `<div class="stat"><div class="stat-v">💧${st.humidity}%</div><div class="stat-l">Humidity</div></div>`
-    : '';
-
-  const rainHtml = st.rainfall && st.rainfall !== 'NIL'
-    ? `<div class="stat"><div class="stat-v">🌧${st.rainfall}mm</div><div class="stat-l">Rain</div></div>`
-    : '';
-
-  return `
-  <div class="card ${level}">
-    <div class="card-top">
+  return `<div class="card ${level}">
+    <div class="ctop">
       <div>
-        <div class="sname">${st.name}</div>
-        <div class="sdist">${st.district}</div>
-        <div class="ssrc">${st.source === 'observed' ? 'AWS' : 'IMD'} · ${st.stat_code}</div>
+        <div class="cname">${st.name}</div>
+        <div class="cdist">${st.district}</div>
+        <div class="csrc">${st.source==='observed'?'AWS':'IMD'} · ${st.stat_code}</div>
       </div>
-      <div class="orb ${orbCls}">${orbIcon}</div>
+      <div class="orb ${orb}">${icon}</div>
     </div>
-
     <div class="temp-row">
-      <div class="temp-val ${level}">${temp ?? '--'}</div>
-      <div class="temp-unit">°C</div>
-      ${st.fc_min ? `<div class="temp-min">/ ${st.fc_min}°</div>` : ''}
+      <div class="temp ${level}">${temp ?? '--'}</div>
+      <div class="tunit">°C</div>
+      ${st.fc_min ? `<div class="tmin">/ ${st.fc_min}°</div>` : ''}
     </div>
-
-    <div class="alert-pill ${level} ml">${mlLabel}</div>
-
-    <div class="wx-desc">${st.fc_weather ?? 'Weather data unavailable'}</div>
-
-    <div class="stats-row">${humHtml}${depHtml}${rainHtml}</div>
-
-    <div class="fc-strip">${forecastHtml}</div>
-
-    <div class="card-foot">
-      <div class="sun-times">
-        <span>🌅 ${fmtTime(st.sunrise)}</span>
-        <span>🌇 ${fmtTime(st.sunset)}</span>
+    <div class="pill ${level} ml" data-ml="${mlLbl}" data-en="${enLbl}">${mlLbl}</div>
+    <div class="wxdesc">${st.fc_weather ?? 'Data unavailable'}</div>
+    <div class="stats">${humH}${depH}${rnH}</div>
+    <div class="fcs">${fcs}</div>
+    <div class="cfoot">
+      <div class="suntimes">
+        <span>🌅 ${(st.sunrise||'--').substring(0,5)}</span>
+        <span>🌇 ${(st.sunset||'--').substring(0,5)}</span>
       </div>
-      <span>${fmtShort(fetchedAt)}</span>
+      <span>${fmtIST(fetchedAt)}</span>
     </div>
   </div>`;
 }
 
 // ── MAP ───────────────────────────────────────────────────────────────────
-const map = L.map('map', {zoomControl:false, attributionControl:false})
-  .setView([10.5, 76.2], 6);
+const map = L.map('map', {zoomControl:false, attributionControl:false}).setView([10.5,76.2],6);
 L.control.zoom({position:'bottomright'}).addTo(map);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',
-  {maxZoom:18}).addTo(map);
-
-// ── ADVISORY TOGGLE ───────────────────────────────────────────────────────
-function toggleAdvisory(btn) {
-  btn.classList.toggle('open');
-  const body = document.getElementById('advisory-body');
-  body.classList.toggle('visible');
-}
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',{maxZoom:18}).addTo(map);
 
 // ── MAIN ──────────────────────────────────────────────────────────────────
 async function init() {
   try {
-    const [wRes, gRes] = await Promise.all([
-      fetch(WEATHER_URL),
-      fetch(GEOJSON_URL)
-    ]);
+    const [wRes, gRes] = await Promise.all([fetch(WEATHER_URL), fetch(GEOJSON_URL)]);
     const data = await wRes.json();
     const geo  = await gRes.json();
 
-    // District GeoJSON
-    L.geoJSON(geo, {
-      style:{ color:'#374151', weight:1, fillColor:'#1c2230', fillOpacity:.8 }
-    }).addTo(map);
+    L.geoJSON(geo,{style:{color:'#2a3649',weight:1,fillColor:'#1c2230',fillOpacity:.9}}).addTo(map);
 
     const fetchedAt = data.meta?.fetched_at;
     const stations  = data.stations ?? [];
 
-    // Header time
-    document.getElementById('updated-badge').textContent = 'Updated ' + fmtShort(fetchedAt);
+    // Header
+    document.getElementById('updated-badge').textContent = 'Updated ' + fmtIST(fetchedAt);
 
     // Issued time
     const issued = data.meta?.issued_time;
     if (issued) {
-      const el = document.getElementById('issued-time');
+      const el = document.getElementById('issued-badge');
       el.textContent = 'പുറപ്പെടുവിച്ചത്: ' + issued;
       el.style.display = 'inline-flex';
     }
 
     // Alert bar
-    const alertInfo = data.meta?.alert_color;
-    const paras     = data.meta?.alert_paragraphs ?? [];
-    if (paras.length > 0) {
+    const alertColor = data.meta?.alert_color;
+    const paras = data.meta?.alert_paragraphs ?? [];
+    if (paras.length > 0 && alertColor?.level !== 'none') {
       const bar   = document.getElementById('alert-bar');
-      const color = alertInfo?.color ?? '#d97706';
-      bar.style.display  = 'block';
-      bar.style.borderBottom = `3px solid ${color}`;
-      bar.style.background   = color + '11';
+      const color = alertColor?.color ?? '#eab308';
+      bar.style.display = 'block';
+      bar.style.background = color + '0d';
+      bar.style.borderBottom = `2px solid ${color}44`;
 
-      const badge = document.getElementById('ksdma-badge');
+      const badge = document.getElementById('ab-badge');
       badge.style.background = color;
-      badge.textContent = alertInfo?.ml ? alertInfo.ml : 'KSDMA';
+      badge.textContent = 'KSEOC-KSDMA';
 
-      // Title is first para containing "അലർട്ട്"
-      const titlePara = paras.find(p => p.includes('അലർട്ട്') || p.includes('Alert')) ?? paras[0];
-      document.getElementById('alert-title').textContent = titlePara;
-      document.getElementById('alert-title').style.color = color;
+      const titlePara = paras.find(p => p.includes('അലർട്ട്') || p.includes('ഉയർന്ന')) ?? paras[0];
+      const abTitle = document.getElementById('ab-title');
+      abTitle.textContent = titlePara;
+      abTitle.style.color = color;
 
-      const bodyParas = paras.filter(p => p !== titlePara).slice(0,3);
-      document.getElementById('alert-body').innerHTML = bodyParas.map(p => `<p>${p}</p>`).join('');
+      const bodyParas = paras.filter(p => p !== titlePara && p.length > 60).slice(0,2);
+      document.getElementById('ab-body').innerHTML = bodyParas.map(p=>`<p>${p}</p>`).join('');
+
+      if (issued) {
+        const isEl = document.getElementById('ab-issued');
+        isEl.textContent = 'പുറപ്പെടുവിച്ച സമയം: ' + issued;
+        isEl.style.display = 'inline-block';
+      }
     }
 
-    // Station count
-    document.getElementById('grid-count').textContent =
-      `${stations.length} stations · ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}`;
+    // Advisory issued time
+    if (issued) {
+      const ai = document.getElementById('advisory-issued');
+      ai.textContent = '📋 പുറപ്പെടുവിച്ച സമയം: ' + issued + ' · KSEOC-KSDMA';
+      ai.style.display = 'block';
+    }
 
-    // Build cards
-    const grid = document.getElementById('grid');
-    grid.innerHTML = stations.map(st => buildCard(st, fetchedAt)).join('');
+    // Grid
+    document.getElementById('grid-meta').textContent =
+      `${stations.length} stations · ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}`;
+    document.getElementById('grid').innerHTML = stations.map(st => buildCard(st, fetchedAt)).join('');
+
+    // Show AWS embed
+    document.getElementById('aws-embed').style.display = 'block';
 
     // Map markers
-    const colorMap = {
-      normal:'#22c55e', watch:'#f59e0b', alert:'#f97316',
-      warning:'#ef4444', extreme:'#a855f7', unknown:'#6b7280'
-    };
+    const cm = {normal:'#22c55e',watch:'#eab308',alert:'#f97316',warning:'#ef4444',extreme:'#a855f7',unknown:'#4b5563'};
     stations.forEach(st => {
       if (!st.lat || !st.lon) return;
-      const temp  = st.fc_max ?? st.obs_max;
       const level = st.alert?.level ?? 'unknown';
-      const color = colorMap[level] ?? '#6b7280';
-      const isAWS = st.source === 'observed';
-
-      L.circleMarker([st.lat, st.lon], {
-        radius:      isAWS ? 5 : 7,
-        fillColor:   isAWS ? 'transparent' : color,
-        color:       color,
-        weight:      isAWS ? 1.5 : 1,
-        fillOpacity: isAWS ? 0 : .9,
+      const color = cm[level] ?? '#4b5563';
+      const aws   = st.source === 'observed';
+      L.circleMarker([st.lat,st.lon],{
+        radius:aws?5:7, fillColor:aws?'transparent':color,
+        color, weight:aws?1.5:1, fillOpacity:aws?0:.9
       }).addTo(map).bindPopup(`
-        <div style="font-family:'Space Grotesk',sans-serif;background:#161b24;color:#e2e8f0;padding:8px;border-radius:8px;min-width:140px">
-          <div style="font-weight:700;font-size:13px;margin-bottom:4px">${st.name}</div>
-          <div style="font-size:24px;font-weight:800;color:${color}">${temp ?? '--'}°C</div>
-          <div style="font-size:10px;color:#94a3b8;margin-top:3px">${st.fc_weather?.substring(0,40) ?? ''}...</div>
-          ${st.humidity ? `<div style="font-size:10px;color:#94a3b8;margin-top:3px">💧 ${st.humidity}%</div>` : ''}
-          <div style="font-size:9px;color:#4b5563;margin-top:4px">${isAWS ? 'AWS Station' : 'IMD Station'} · ${st.stat_code}</div>
+        <div style="font-family:'DM Sans',sans-serif;background:#161b24;color:#e2e8f0;padding:8px;border-radius:8px;min-width:130px">
+          <div style="font-weight:700;font-size:13px;margin-bottom:3px">${st.name}</div>
+          <div style="font-size:22px;font-weight:800;color:${color}">${(st.fc_max??st.obs_max)??'--'}°C</div>
+          <div style="font-size:9px;color:#94a3b8;margin-top:3px">${aws?'AWS':'IMD'} · ${st.stat_code}</div>
         </div>`, {className:'dark-popup'});
     });
 
-    // KSDMA maps
-    const mapsDiv = document.getElementById('ksdma-maps');
+    // Side maps
+    const mapsDiv = document.getElementById('side-maps');
     const mapItems = [
-      {label:'MAX TEMP', url: data.meta?.max_map},
-      {label:'MIN TEMP', url: data.meta?.min_map},
-      {label:'HUMIDITY', url: data.meta?.humid_map},
-    ].filter(m => m.url);
+      {lbl:'MAX TEMP', url:data.meta?.max_map},
+      {lbl:'MIN TEMP', url:data.meta?.min_map},
+      {lbl:'HUMIDITY', url:data.meta?.humid_map},
+    ].filter(m=>m.url);
 
     if (mapItems.length > 0) {
-      mapsDiv.innerHTML = `<div class="panel-hd">KSDMA Maps</div>` +
-        mapItems.map(m => `
-          <div class="ksdma-map-card">
-            <div class="ksdma-map-label">${m.label}</div>
-            <img src="${m.url}" alt="${m.label}" loading="lazy"
+      mapsDiv.innerHTML = `<div class="side-hd" style="margin-bottom:8px">KSDMA Maps</div>` +
+        mapItems.map(m=>`
+          <div class="smap-card" onclick="openModal('${m.url}')">
+            <div class="smap-lbl">${m.lbl}</div>
+            <img src="${m.url}" alt="${m.lbl}" loading="lazy"
               onerror="this.parentElement.style.display='none'"/>
           </div>`).join('');
     }
 
-    // UV section
-    document.getElementById('uv-section').style.display = 'block';
-    document.getElementById('uv-advisory').innerHTML = UV_ADVISORY_ML;
-
-    // Advisory section — use KSDMA paragraphs that are long enough
-    const longParas = paras.filter(p => p.length > 80);
-    if (longParas.length > 0) {
-      document.getElementById('advisory-section').style.display = 'block';
-      document.getElementById('advisory-body').innerHTML =
-        longParas.map(p => `<p>${p}</p>`).join('');
-    }
-
-    // Hide loading
+    // Apply language
+    setLang('ml');
     document.getElementById('loading').style.display = 'none';
 
   } catch(e) {
@@ -629,15 +790,15 @@ async function init() {
     document.getElementById('grid').innerHTML = `
       <div style="grid-column:1/-1;background:#1c0000;border:1px solid #7f1d1d;
         border-radius:12px;padding:24px;color:#fca5a5;font-size:13px;line-height:2">
-        <strong style="color:#ef4444">Unable to load weather data.</strong><br>
-        Please check your internet connection or try again in a few minutes.<br>
+        <strong style="color:#ef4444;display:block;margin-bottom:6px">Unable to load weather data</strong>
+        Check your internet connection or try again shortly.<br>
         <small style="color:#6b7280">${e.message}</small>
       </div>`;
   }
 }
 
 init();
-setInterval(() => location.reload(), 30 * 60 * 1000);
+setInterval(()=>location.reload(), 30*60*1000);
 </script>
 </body>
 </html>
