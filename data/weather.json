@@ -1,6 +1,6 @@
 {
   "meta": {
-    "fetched_at": "2026-03-27T12:41:11Z",
+    "fetched_at": "2026-03-27T16:43:30Z",
     "station_count": 14,
     "imd_source": "India Meteorological Department",
     "ksdma_source": "Kerala State Disaster Management Authority",
@@ -120,7 +120,7 @@
       "obs_dep": null,
       "rainfall": "NIL",
       "humidity": 66.0,
-      "fc_max": 33.0,
+      "fc_max": 34.0,
       "fc_min": 25.0,
       "fc_dep": null,
       "fc_weather": "Partly cloudy sky with one or two spells of rain or thundershowers",
@@ -246,9 +246,9 @@
       "obs_dep": 2.8,
       "rainfall": "NIL",
       "humidity": 77.0,
-      "fc_max": 38.0,
+      "fc_max": 37.0,
       "fc_min": 26.0,
-      "fc_dep": 3.3,
+      "fc_dep": 2.3,
       "fc_weather": "Partly cloudy sky with one or two spells of rain or thundershowers",
       "day2_max": 38.0,
       "day2_min": 26.0,
@@ -272,9 +272,9 @@
       "sunset": "18:34:00",
       "warning_color": null,
       "alert": {
-        "level": "alert",
-        "ml": "അലേർട്ട്",
-        "en": "Alert"
+        "level": "watch",
+        "ml": "ജാഗ്രത",
+        "en": "Watch"
       }
     },
     {
@@ -288,7 +288,7 @@
       "obs_dep": 0.7,
       "rainfall": "1.00",
       "humidity": 76.0,
-      "fc_max": 34.0,
+      "fc_max": 32.0,
       "fc_min": 27.0,
       "fc_dep": null,
       "fc_weather": "Partly cloudy sky with one or two spells of rain or thundershowers",
@@ -372,7 +372,7 @@
       "obs_dep": 0.6,
       "rainfall": "NIL",
       "humidity": 79.0,
-      "fc_max": 38.0,
+      "fc_max": 40.0,
       "fc_min": 26.0,
       "fc_dep": null,
       "fc_weather": "Partly cloudy sky with one or two spells of rain or thundershowers",
@@ -398,9 +398,9 @@
       "sunset": "18:34",
       "warning_color": null,
       "alert": {
-        "level": "alert",
-        "ml": "അലേർട്ട്",
-        "en": "Alert"
+        "level": "warning",
+        "ml": "മുന്നറിയിപ്പ്",
+        "en": "Warning"
       }
     },
     {
@@ -456,7 +456,7 @@
       "obs_dep": null,
       "rainfall": "NIL",
       "humidity": 79.0,
-      "fc_max": 34.0,
+      "fc_max": 35.0,
       "fc_min": 26.0,
       "fc_dep": null,
       "fc_weather": "Partly cloudy sky with one or two spells of rain or thundershowers",
@@ -517,9 +517,9 @@
       "day6_max": 37.0,
       "day6_min": 25.0,
       "day6_weather": "Partly cloudy sky",
-      "day7_max": null,
-      "day7_min": null,
-      "day7_weather": null,
+      "day7_max": 36.0,
+      "day7_min": 24.0,
+      "day7_weather": "Partly cloudy sky",
       "sunrise": "06:27",
       "sunset": "18:37",
       "warning_color": null,
@@ -540,9 +540,9 @@
       "obs_dep": 1.7,
       "rainfall": "NIL",
       "humidity": 80.0,
-      "fc_max": 35.0,
+      "fc_max": 36.0,
       "fc_min": 27.0,
-      "fc_dep": 0.7,
+      "fc_dep": 1.7,
       "fc_weather": "Partly cloudy sky with one or two spells of rain or thundershowers",
       "day2_max": 37.0,
       "day2_min": 27.0,
@@ -566,9 +566,9 @@
       "sunset": "18:38:00",
       "warning_color": null,
       "alert": {
-        "level": "normal",
-        "ml": "സാധാരണ",
-        "en": "Normal"
+        "level": "watch",
+        "ml": "ജാഗ്രത",
+        "en": "Watch"
       }
     },
     {
