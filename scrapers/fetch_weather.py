@@ -6,9 +6,9 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 import urllib3
 
-urllib3.disable_warnings()  # IMD uses non-standard SSL cert
+urllib3.disable_warnings()
 
-# ── OFFICIAL KERALA STATIONS (IMD Station Directory — ground truth) ────────
+# ── OFFICIAL KERALA STATIONS ──────────────────────────────────────────────
 KERALA_OFFICIAL = {
     "43352": {"name": "Alappuzha",                    "district": "Alappuzha"},
     "43315": {"name": "Kannur",                       "district": "Kannur"},
@@ -25,7 +25,7 @@ KERALA_OFFICIAL = {
     "43357": {"name": "Thrissur (Vellanikara)",       "district": "Thrissur"},
 }
 
-# ── KERALA BOUNDS FOR OBSERVED AWS STATIONS ───────────────────────────────
+# ── KERALA BOUNDS FOR AWS ─────────────────────────────────────────────────
 KL_LAT_MIN, KL_LAT_MAX = 8.0,  12.5
 KL_LON_MIN, KL_LON_MAX = 74.8, 76.8
 
@@ -62,29 +62,68 @@ def fetch_json(url, label):
         print(f"  ❌ {label} — {e}")
         return None
 
+# ── DETECT ALERT COLOR FROM MALAYALAM TEXT ────────────────────────────────
+def detect_alert_color(text):
+    """
+    Detects alert level from KSDMA Malayalam text.
+    Returns dict with level, hex color, and English label.
+    """
+    combined = " ".join(text).lower() if isinstance(text, list) else text.lower()
+
+    if "റെഡ് അലർട്ട്" in combined or "red alert" in combined:
+        return {"level": "red",    "color": "#dc2626", "ml": "റെഡ് അലർട്ട്",    "en": "Red Alert"}
+    if "ഓറഞ്ച് അലർട്ട്" in combined or "orange alert" in combined:
+        return {"level": "orange", "color": "#ea580c", "ml": "ഓറഞ്ച് അലർട്ട്", "en": "Orange Alert"}
+    if "മഞ്ഞ അലർട്ട്" in combined or "yellow alert" in combined:
+        return {"level": "yellow", "color": "#d97706", "ml": "മഞ്ഞ അലർട്ട്",    "en": "Yellow Alert"}
+    if "ഹീറ്റ്വേവ്" in combined or "heatwave" in combined or "heat wave" in combined:
+        return {"level": "red",    "color": "#dc2626", "ml": "ഹീറ്റ്വേവ് മുന്നറിയിപ്പ്", "en": "Heatwave Warning"}
+    # Default — no specific alert
+    return {"level": "none", "color": "#16a34a", "ml": "സാധാരണ നില", "en": "Normal"}
+
 # ── SCRAPE KSDMA ──────────────────────────────────────────────────────────
 def get_ksdma_meta():
-    print("  Scraping KSDMA...")
+    print("  Scraping KSDMA temperature page...")
     try:
         r = requests.get(KSDMA_URL, timeout=20, verify=False,
                          headers={"User-Agent": "Mozilla/5.0"})
         soup = BeautifulSoup(r.text, "html.parser")
 
-        # Alert paragraphs — any <p> longer than 30 chars
+        # All paragraphs longer than 30 chars
         paragraphs = [
             p.get_text(strip=True)
             for p in soup.find_all("p")
             if len(p.get_text(strip=True)) > 30
         ]
 
-        # Maximum temperature map
+        # Issued time — look for പുറപ്പെടുവിച്ച pattern
+        issued_time = None
+        full_text = soup.get_text()
+        patterns = [
+            r'പുറപ്പെടുവിച്ച\s+സമയ[മംവ്]*\s*[:\-]?\s*(.{5,40})',
+            r'issued\s*[:\-]?\s*(\d{1,2}[.:]\d{2}\s*(?:AM|PM|am|pm).*?\d{4})',
+            r'(\d{1,2}[.:]\d{2}\s*(?:AM|PM)\s*,?\s*\d{1,2}/\d{1,2}/\d{4})',
+        ]
+        for pat in patterns:
+            m = re.search(pat, full_text, re.IGNORECASE)
+            if m:
+                issued_time = m.group(1).strip()[:60]
+                break
+
+        # Max temperature map
         max_map = None
         max_link = soup.find("a", string=re.compile("maximum temperature", re.I))
         if max_link and max_link.get("href"):
             href = max_link["href"]
             max_map = href if href.startswith("http") else KSDMA_BASE + href
+        # Also try img tags
+        if not max_map:
+            max_img = soup.find("img", src=re.compile("T.MAX|TMAX|max.temp", re.I))
+            if max_img and max_img.get("src"):
+                src = max_img["src"]
+                max_map = src if src.startswith("http") else KSDMA_BASE + src
 
-        # Minimum temperature map
+        # Min temperature map
         min_map = None
         min_link = soup.find("a", string=re.compile("minimum temperature", re.I))
         if min_link and min_link.get("href"):
@@ -98,10 +137,17 @@ def get_ksdma_meta():
             src = humid_img["src"]
             humid_map = src if src.startswith("http") else KSDMA_BASE + src
 
-        print(f"  ✅ KSDMA — {len(paragraphs)} paragraphs, max={bool(max_map)}, min={bool(min_map)}, humid={bool(humid_map)}")
+        # Detect alert color
+        alert_info = detect_alert_color(paragraphs)
+
+        print(f"  ✅ KSDMA — {len(paragraphs)} paragraphs | alert={alert_info['en']} | issued={issued_time}")
+
         return {
             "ksdma_source":     "Kerala State Disaster Management Authority",
-            "alert_paragraphs": paragraphs[:4],
+            "ksdma_url":        KSDMA_URL,
+            "alert_paragraphs": paragraphs[:5],
+            "alert_color":      alert_info,
+            "issued_time":      issued_time,
             "max_map":          max_map,
             "min_map":          min_map,
             "humid_map":        humid_map,
@@ -111,7 +157,10 @@ def get_ksdma_meta():
         print(f"  ❌ KSDMA failed — {e}")
         return {
             "ksdma_source":     "Kerala State Disaster Management Authority",
+            "ksdma_url":        KSDMA_URL,
             "alert_paragraphs": ["Alert data temporarily unavailable. Please check sdma.kerala.gov.in"],
+            "alert_color":      {"level": "none", "color": "#6b7280", "ml": "", "en": ""},
+            "issued_time":      None,
             "max_map":          None,
             "min_map":          None,
             "humid_map":        None,
@@ -136,31 +185,22 @@ def extract(props, name, district, source):
         "lat":        props.get("Latitude"),
         "lon":        props.get("Longitude"),
         "source":     source,
-
-        # Yesterday actual
         "obs_max":    props.get("PD_Mx_Temp"),
         "obs_dep":    props.get("PD_Mx_Dep"),
         "rainfall":   props.get("Pt_24_Rain"),
         "humidity":   props.get("D1_RH_0830"),
-
-        # Today forecast
         "fc_max":     props.get("D1F_Mx_Tem"),
         "fc_min":     props.get("D1F_Mn_Tem"),
         "fc_dep":     props.get("D1F_Mx_Dep"),
         "fc_weather": props.get("D1F_Weathr"),
-
-        # 7-day forecast
         "day2_max": props.get("D2_Mx_Temp"), "day2_min": props.get("D2_Mn_Temp"), "day2_weather": props.get("D2_Weather"),
         "day3_max": props.get("D3_Mx_Temp"), "day3_min": props.get("D3_Mn_Temp"), "day3_weather": props.get("D3_Weather"),
         "day4_max": props.get("D4_Mx_Temp"), "day4_min": props.get("D4_Mn_Temp"), "day4_weather": props.get("D4_Weather"),
         "day5_max": props.get("D5_Mx_Temp"), "day5_min": props.get("D5_Mn_Temp"), "day5_weather": props.get("D5_Weather"),
         "day6_max": props.get("D6_Mx_Temp"), "day6_min": props.get("D6_Mn_Temp"), "day6_weather": props.get("D6_Weather"),
         "day7_max": props.get("D7_Mx_Temp"), "day7_min": props.get("D7_Mn_Temp"), "day7_weather": props.get("D7_Weather"),
-
         "sunrise":    props.get("Sr_Time"),
         "sunset":     props.get("Ss_Time"),
-
-        # Filled later
         "warning_color": None,
         "alert":         None,
     }
@@ -189,7 +229,7 @@ def fetch_all():
 
     stations = {}
 
-    # Step 1 — Official Kerala stations from forecast file
+    # Step 1 — Official Kerala stations
     if forecast_data:
         for feature in forecast_data.get("features", []):
             props = feature.get("properties", {})
@@ -200,7 +240,7 @@ def fetch_all():
 
     print(f"\n  📍 Official stations: {len(stations)}/13")
 
-    # Step 2 — Observed AWS inside Kerala boundary
+    # Step 2 — Observed AWS
     obs_count = 0
     if observed_data:
         for feature in observed_data.get("features", []):
