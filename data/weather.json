@@ -7,17 +7,17 @@
     ],
     "max_map": "https://sdma.kerala.gov.in/wp-content/uploads/2026/03/T-MAX-10.jpeg",
     "humid_map": "https://sdma.kerala.gov.in/wp-content/uploads/2026/03/Hot-Humid-Map.jpg",
-    "sync_at": "2026-03-27 01:22"
+    "sync_at": "2026-03-27 04:03"
   },
   "stations": [
     {
       "name": "Station 8.0833",
       "lat": 8.0833,
       "lon": 77.5,
-      "temp": 34.0,
+      "temp": 35.0,
       "status": "Normal",
-      "departure": 1.0,
-      "humidity": 69.0,
+      "departure": 2.0,
+      "humidity": 64.0,
       "rainfall": 0,
       "warning_code": 4
     },
@@ -25,10 +25,10 @@
       "name": "Thiruvananthapuram (Airport)",
       "lat": 8.4667,
       "lon": 76.95,
-      "temp": 33.0,
+      "temp": 35.0,
       "status": "Normal",
-      "departure": -0.2,
-      "humidity": 50.0,
+      "departure": 1.8,
+      "humidity": 72.0,
       "rainfall": 0,
       "warning_code": 4
     },
@@ -39,7 +39,7 @@
       "temp": 35.0,
       "status": "Normal",
       "departure": 0.8,
-      "humidity": 60.0,
+      "humidity": 84.0,
       "rainfall": 0,
       "warning_code": 4
     },
@@ -50,7 +50,7 @@
       "temp": 37.0,
       "status": "Watch",
       "departure": 0.6,
-      "humidity": 90.0,
+      "humidity": 88.0,
       "rainfall": 0,
       "warning_code": 4
     },
@@ -61,7 +61,7 @@
       "temp": 37.0,
       "status": "Watch",
       "departure": 2.3,
-      "humidity": 89.0,
+      "humidity": 77.0,
       "rainfall": 0,
       "warning_code": 4
     },
@@ -69,10 +69,10 @@
       "name": "Station 10.2333",
       "lat": 10.2333,
       "lon": 77.4667,
-      "temp": 21.0,
+      "temp": 22.0,
       "status": "Normal",
-      "departure": -0.5,
-      "humidity": 33.0,
+      "departure": 0.5,
+      "humidity": 35.0,
       "rainfall": 0,
       "warning_code": 4
     },
@@ -83,7 +83,7 @@
       "temp": 37.0,
       "status": "Watch",
       "departure": 0.6,
-      "humidity": 62.0,
+      "humidity": 60.0,
       "rainfall": 0,
       "warning_code": 4
     },
@@ -91,10 +91,10 @@
       "name": "Kozhikode",
       "lat": 11.25,
       "lon": 75.7833,
-      "temp": 35.0,
-      "status": "Normal",
-      "departure": 0.7,
-      "humidity": 81.0,
+      "temp": 36.0,
+      "status": "Watch",
+      "departure": 1.7,
+      "humidity": 80.0,
       "rainfall": 0,
       "warning_code": 4
     },
@@ -105,7 +105,7 @@
       "temp": 26.0,
       "status": "Normal",
       "departure": 1.9,
-      "humidity": 46.0,
+      "humidity": 53.0,
       "rainfall": 0,
       "warning_code": 4
     },
@@ -116,7 +116,7 @@
       "temp": 34.0,
       "status": "Normal",
       "departure": -0.9,
-      "humidity": 81.0,
+      "humidity": 76.0,
       "rainfall": 0,
       "warning_code": 4
     },
@@ -127,7 +127,7 @@
       "temp": 36.0,
       "status": "Watch",
       "departure": 1.7,
-      "humidity": 58.0,
+      "humidity": null,
       "rainfall": 0,
       "warning_code": 4
     },
@@ -138,7 +138,7 @@
       "temp": 34.0,
       "status": "Normal",
       "departure": 0.1,
-      "humidity": 80.0,
+      "humidity": 83.0,
       "rainfall": 0,
       "warning_code": 4
     },
@@ -149,7 +149,7 @@
       "temp": 35.0,
       "status": "Normal",
       "departure": 1.7,
-      "humidity": 45.0,
+      "humidity": null,
       "rainfall": 0,
       "warning_code": 4
     }
