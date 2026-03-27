@@ -4,172 +4,229 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Kerala Heat Watch | കേരള ചൂട് നിരീക്ഷണം</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+Malayalam:wght@400;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Noto+Sans+Malayalam:wght@400;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#f0f2f5;--surface:#ffffff;--border:#e2e6ea;
-  --text:#1a1f2e;--muted:#6b7280;--faint:#9ca3af;
-  --normal:#16a34a;--watch:#d97706;--alert:#ea580c;--warning:#dc2626;--extreme:#7c3aed;
-  --normal-bg:#f0fdf4;--watch-bg:#fffbeb;--alert-bg:#fff7ed;--warning-bg:#fef2f2;--extreme-bg:#f5f3ff;
-  --normal-sun:#fbbf24;--watch-sun:#f59e0b;--alert-sun:#f97316;--warning-sun:#ef4444;--extreme-sun:#8b5cf6;
+  --bg:#0a0c10;--bg2:#10131a;--bg3:#161b24;--bg4:#1c2230;
+  --border:#1f2937;--border2:#2d3748;
+  --text:#e2e8f0;--muted:#94a3b8;--faint:#4b5563;
+  --normal:#22c55e;--watch:#f59e0b;--alert:#f97316;--warning:#ef4444;--extreme:#a855f7;
+  --normal-glow:rgba(34,197,94,.15);--watch-glow:rgba(245,158,11,.15);
+  --alert-glow:rgba(249,115,22,.15);--warning-glow:rgba(239,68,68,.15);
+  --extreme-glow:rgba(168,85,247,.15);
 }
-body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+html{scroll-behavior:smooth}
+body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
 .ml{font-family:'Noto Sans Malayalam',sans-serif}
 
-/* ── HEADER ── */
-header{background:#fff;border-bottom:1px solid var(--border);padding:12px 24px;
-  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
-  position:sticky;top:0;z-index:1000;box-shadow:0 1px 8px rgba(0,0,0,.06)}
-.logo{display:flex;align-items:center;gap:10px}
-.dot{width:10px;height:10px;border-radius:50%;background:#dc2626;flex-shrink:0;
-  animation:blink 1.4s ease-in-out infinite}
-@keyframes blink{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(220,38,38,.4)}
-  50%{opacity:.7;box-shadow:0 0 0 6px rgba(220,38,38,0)}}
-.logo-text{font-size:18px;font-weight:800;letter-spacing:-.3px;color:var(--text)}
-.logo-text span{color:#dc2626}
-.logo-sub{font-size:10px;color:var(--muted);letter-spacing:.5px;margin-top:1px}
-.header-right{display:flex;align-items:center;gap:16px;font-size:12px;color:var(--muted)}
-.updated-badge{background:var(--bg);border:1px solid var(--border);border-radius:20px;
-  padding:4px 12px;font-size:11px;color:var(--muted)}
-.imd-badge{background:#1e40af;color:#fff;border-radius:20px;padding:4px 12px;font-size:10px;letter-spacing:.5px}
+/* ── LOADING ── */
+#loading{position:fixed;inset:0;z-index:9999;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px}
+.load-icon{font-size:52px;animation:float 2s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.load-title{font-size:20px;font-weight:700;letter-spacing:2px;color:var(--text)}
+.load-sub{font-size:12px;color:var(--muted);letter-spacing:1px}
+.load-bar{width:180px;height:2px;background:var(--border2);border-radius:2px;overflow:hidden}
+.load-fill{height:100%;background:linear-gradient(90deg,#ef4444,#f97316);
+  animation:loadfill 2.5s ease forwards}
+@keyframes loadfill{from{width:0}to{width:100%}}
 
-/* ── KSDMA ALERT ── */
-.ksdma-bar{background:#fff;border-bottom:3px solid #dc2626;padding:14px 24px}
-.ksdma-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.ksdma-logo{background:#dc2626;color:#fff;border-radius:6px;padding:4px 10px;
-  font-size:10px;font-weight:700;letter-spacing:1px}
-.ksdma-title{font-size:13px;font-weight:700;color:#dc2626;letter-spacing:.3px}
-.ksdma-text{font-size:13px;line-height:1.7;color:var(--text)}
-.ksdma-text p{margin-bottom:4px}
+/* ── HEADER ── */
+header{background:rgba(10,12,16,.95);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);padding:12px 20px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
+  position:sticky;top:0;z-index:500}
+.logo-row{display:flex;align-items:center;gap:12px}
+.live-dot{position:relative;width:10px;height:10px;flex-shrink:0}
+.live-dot::before{content:'';position:absolute;inset:0;border-radius:50%;
+  background:#ef4444;animation:blink 1.4s ease-in-out infinite}
+.live-dot::after{content:'';position:absolute;inset:-3px;border-radius:50%;
+  border:1px solid #ef444466;animation:blink 1.4s ease-in-out infinite .2s}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.15)}}
+.logo-text{font-size:17px;font-weight:700;letter-spacing:.5px}
+.logo-text span{color:#ef4444}
+.logo-sub{font-size:9px;color:var(--muted);letter-spacing:1.5px;margin-top:1px}
+.header-badges{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.badge{padding:3px 10px;border-radius:20px;font-size:10px;letter-spacing:.8px;font-weight:600}
+.badge-imd{background:#1e3a5f;color:#60a5fa;border:1px solid #1d4ed844}
+.badge-live{background:#1a1a1a;color:var(--muted);border:1px solid var(--border2)}
+.issued-time{font-size:11px;color:var(--muted);padding:3px 10px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:20px}
+
+/* ── KSDMA ALERT BAR ── */
+.alert-bar{padding:14px 20px;border-bottom:1px solid var(--border);display:none}
+.alert-bar-inner{max-width:1400px;margin:0 auto}
+.alert-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.ksdma-badge{padding:4px 12px;border-radius:4px;font-size:10px;font-weight:700;
+  letter-spacing:1.5px;color:#fff}
+.alert-title{font-size:14px;font-weight:700;letter-spacing:.3px}
+.alert-body{font-size:12px;line-height:1.8;color:var(--muted)}
+.alert-body p{margin-bottom:3px}
 
 /* ── LAYOUT ── */
-.main-layout{display:grid;grid-template-columns:1fr 260px;gap:0;min-height:calc(100vh - 140px)}
-.stations-panel{padding:20px 24px;overflow-y:auto}
-.map-panel{background:#fff;border-left:1px solid var(--border);padding:16px;
-  position:sticky;top:61px;height:calc(100vh - 61px);display:flex;flex-direction:column;gap:12px;overflow-y:auto}
+.layout{display:grid;grid-template-columns:1fr 280px;min-height:calc(100vh - 110px)}
+.main-panel{padding:20px;overflow-y:auto;min-width:0}
+.side-panel{background:var(--bg2);border-left:1px solid var(--border);
+  padding:16px;overflow-y:auto;position:sticky;top:61px;height:calc(100vh - 61px)}
 
-/* ── SECTION HEADER ── */
-.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.section-title{font-size:13px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
-.station-count{font-size:11px;color:var(--faint)}
+/* ── PANEL HEADER ── */
+.panel-hd{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--faint);
+  text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;
+  border-bottom:1px solid var(--border)}
 
 /* ── STATION GRID ── */
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.grid-title{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--faint);text-transform:uppercase}
+.grid-count{font-size:11px;color:var(--faint)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 
 /* ── STATION CARD ── */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;
-  padding:16px;transition:all .2s;cursor:default;position:relative;overflow:hidden}
-.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0}
-.card.normal::before{background:var(--normal)}
-.card.watch::before{background:var(--watch)}
-.card.alert::before{background:var(--alert)}
-.card.warning::before{background:var(--warning)}
-.card.extreme::before{background:var(--extreme)}
-.card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;
+  padding:14px;transition:all .2s;position:relative;overflow:hidden}
+.card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:12px 12px 0 0}
+.card.normal::after{background:var(--normal)}
+.card.watch::after{background:var(--watch)}
+.card.alert::after{background:var(--alert)}
+.card.warning::after{background:var(--warning)}
+.card.extreme::after{background:var(--extreme)}
+.card.unknown::after{background:var(--faint)}
+.card:hover{transform:translateY(-2px);border-color:var(--border2);
+  box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.card.normal:hover{box-shadow:0 8px 32px var(--normal-glow)}
+.card.watch:hover{box-shadow:0 8px 32px var(--watch-glow)}
+.card.alert:hover{box-shadow:0 8px 32px var(--alert-glow)}
+.card.warning:hover{box-shadow:0 8px 32px var(--warning-glow)}
+.card.extreme:hover{box-shadow:0 8px 32px var(--extreme-glow)}
 
-.card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
-.station-name{font-size:13px;font-weight:700;color:var(--text);line-height:1.2}
-.station-district{font-size:10px;color:var(--muted);margin-top:2px}
-.station-source{font-size:9px;color:var(--faint);margin-top:1px;text-transform:uppercase;letter-spacing:.5px}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.sname{font-size:13px;font-weight:700;color:var(--text);line-height:1.2}
+.sdist{font-size:10px;color:var(--muted);margin-top:2px}
+.ssrc{font-size:8px;color:var(--faint);margin-top:1px;text-transform:uppercase;letter-spacing:.8px}
 
-/* ── SUN / MOON ── */
-.weather-icon{width:44px;height:44px;flex-shrink:0;position:relative}
-.sun{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;position:relative}
-.sun.normal{background:radial-gradient(circle,#fef9c3,#fef08a);box-shadow:0 0 0 4px #fef08a44}
-.sun.watch{background:radial-gradient(circle,#fef3c7,#fbbf24);box-shadow:0 0 0 4px #fbbf2444;animation:pulse-watch 3s ease-in-out infinite}
-.sun.alert{background:radial-gradient(circle,#fed7aa,#f97316);box-shadow:0 0 0 4px #f9731644;animation:pulse-alert 2s ease-in-out infinite}
-.sun.warning{background:radial-gradient(circle,#fecaca,#ef4444);box-shadow:0 0 0 4px #ef444444;animation:pulse-warn 1.5s ease-in-out infinite}
-.sun.extreme{background:radial-gradient(circle,#e9d5ff,#8b5cf6);box-shadow:0 0 0 4px #8b5cf644;animation:pulse-ext 1s ease-in-out infinite}
-.sun.night{background:radial-gradient(circle,#dbeafe,#93c5fd);box-shadow:0 0 0 4px #93c5fd33}
-@keyframes pulse-watch{0%,100%{box-shadow:0 0 0 4px #fbbf2444}50%{box-shadow:0 0 0 8px #fbbf2422}}
-@keyframes pulse-alert{0%,100%{box-shadow:0 0 0 4px #f9731644}50%{box-shadow:0 0 0 10px #f9731622}}
-@keyframes pulse-warn{0%,100%{box-shadow:0 0 0 4px #ef444444}50%{box-shadow:0 0 0 12px #ef444422}}
-@keyframes pulse-ext{0%,100%{box-shadow:0 0 0 6px #8b5cf644}50%{box-shadow:0 0 0 14px #8b5cf622}}
+/* Weather orb */
+.orb{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:20px;flex-shrink:0;transition:all .3s}
+.orb.normal{background:radial-gradient(circle,#fef9c3,#fef08a);box-shadow:0 0 12px #fef08a44}
+.orb.watch{background:radial-gradient(circle,#fef3c7,#f59e0b);
+  box-shadow:0 0 12px #f59e0b44;animation:orbpulse 3s ease-in-out infinite}
+.orb.alert{background:radial-gradient(circle,#ffedd5,#f97316);
+  box-shadow:0 0 16px #f9731644;animation:orbpulse 2s ease-in-out infinite}
+.orb.warning{background:radial-gradient(circle,#fee2e2,#ef4444);
+  box-shadow:0 0 20px #ef444444;animation:orbpulse 1.5s ease-in-out infinite}
+.orb.extreme{background:radial-gradient(circle,#f3e8ff,#a855f7);
+  box-shadow:0 0 20px #a855f744;animation:orbpulse 1s ease-in-out infinite}
+.orb.night{background:radial-gradient(circle,#1e293b,#334155);box-shadow:0 0 12px #94a3b822}
+@keyframes orbpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
 
-/* ── TEMP ROW ── */
-.temp-row{display:flex;align-items:baseline;gap:4px;margin-bottom:4px}
-.temp-max{font-size:32px;font-weight:800;line-height:1;letter-spacing:-1px}
-.temp-max.normal{color:var(--normal)}
-.temp-max.watch{color:var(--watch)}
-.temp-max.alert{color:var(--alert)}
-.temp-max.warning{color:var(--warning)}
-.temp-max.extreme{color:var(--extreme)}
-.temp-unit{font-size:14px;color:var(--muted);font-weight:500}
-.temp-min{font-size:13px;color:var(--muted);font-weight:500}
+.temp-row{display:flex;align-items:baseline;gap:3px;margin-bottom:3px}
+.temp-val{font-size:30px;font-weight:800;line-height:1;letter-spacing:-1px}
+.temp-val.normal{color:var(--normal)}.temp-val.watch{color:var(--watch)}
+.temp-val.alert{color:var(--alert)}.temp-val.warning{color:var(--warning)}
+.temp-val.extreme{color:var(--extreme)}.temp-val.unknown{color:var(--muted)}
+.temp-unit{font-size:13px;color:var(--muted)}.temp-min{font-size:12px;color:var(--muted)}
 
-/* ── ALERT BADGE ── */
-.alert-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;
-  border-radius:20px;font-size:11px;font-weight:600;margin-bottom:10px}
-.alert-badge.normal{background:var(--normal-bg);color:var(--normal)}
-.alert-badge.watch{background:var(--watch-bg);color:var(--watch)}
-.alert-badge.alert{background:var(--alert-bg);color:var(--alert)}
-.alert-badge.warning{background:var(--warning-bg);color:var(--warning)}
-.alert-badge.extreme{background:var(--extreme-bg);color:var(--extreme)}
+.alert-pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;
+  font-size:10px;font-weight:600;margin-bottom:8px;border:1px solid transparent}
+.alert-pill.normal{color:var(--normal);background:#052e16;border-color:#14532d}
+.alert-pill.watch{color:var(--watch);background:#1c1000;border-color:#713f12}
+.alert-pill.alert{color:var(--alert);background:#1c0a00;border-color:#7c2d12}
+.alert-pill.warning{color:var(--warning);background:#1c0000;border-color:#7f1d1d}
+.alert-pill.extreme{color:var(--extreme);background:#1a0a2e;border-color:#581c87}
+.alert-pill.unknown{color:var(--faint);background:var(--bg4);border-color:var(--border)}
 
-/* ── WEATHER DESC ── */
-.weather-desc{font-size:10px;color:var(--muted);line-height:1.4;margin-bottom:10px;
+.wx-desc{font-size:10px;color:var(--muted);line-height:1.4;margin-bottom:8px;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 
-/* ── STATS ROW ── */
-.stats-row{display:flex;gap:12px;margin-bottom:10px}
-.stat{display:flex;flex-direction:column;gap:1px}
-.stat-val{font-size:13px;font-weight:600;color:var(--text)}
-.stat-lbl{font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:.5px}
-.dep-pos{color:var(--alert)}
-.dep-neg{color:var(--normal)}
+.stats-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.stat{display:flex;flex-direction:column;gap:1px;min-width:40px}
+.stat-v{font-size:12px;font-weight:600;color:var(--text)}
+.stat-l{font-size:8px;color:var(--faint);text-transform:uppercase;letter-spacing:.5px}
+.dep-p{color:var(--alert)}.dep-n{color:var(--normal)}
 
-/* ── 7-DAY STRIP ── */
-.forecast-strip{display:flex;gap:4px;margin-bottom:10px;overflow-x:auto;padding-bottom:2px}
-.forecast-strip::-webkit-scrollbar{height:2px}
-.forecast-strip::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.fd{flex:1;min-width:32px;text-align:center;background:var(--bg);border-radius:6px;padding:5px 2px}
-.fd-day{font-size:8px;color:var(--faint);font-weight:600;margin-bottom:3px}
-.fd-icon{font-size:12px;margin-bottom:2px}
-.fd-max{font-size:10px;font-weight:700;color:var(--text)}
-.fd-min{font-size:8px;color:var(--muted)}
+/* 7-day strip */
+.fc-strip{display:flex;gap:3px;margin-bottom:8px;overflow-x:auto}
+.fc-strip::-webkit-scrollbar{height:2px}
+.fc-strip::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.fd{flex:1;min-width:30px;text-align:center;background:var(--bg4);
+  border-radius:6px;padding:4px 2px;border:1px solid var(--border)}
+.fd-d{font-size:7px;color:var(--faint);font-weight:700;margin-bottom:2px}
+.fd-i{font-size:11px;margin-bottom:1px}
+.fd-mx{font-size:9px;font-weight:700;color:var(--text)}
+.fd-mn{font-size:8px;color:var(--faint)}
 
-/* ── CARD FOOTER ── */
-.card-footer{display:flex;justify-content:space-between;align-items:center;
-  padding-top:8px;border-top:1px solid var(--border);font-size:9px;color:var(--faint)}
-.sunrise-info{display:flex;gap:8px}
+.card-foot{display:flex;justify-content:space-between;align-items:center;
+  padding-top:7px;border-top:1px solid var(--border);font-size:9px;color:var(--faint)}
+.sun-times{display:flex;gap:8px}
 
-/* ── MAP PANEL ── */
-.map-title{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
-#map{flex:1;border-radius:10px;border:1px solid var(--border);min-height:300px}
-.map-legend{font-size:10px;color:var(--muted)}
-.legend-row{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+/* ── MAP ── */
+#map{width:100%;border-radius:10px;border:1px solid var(--border);
+  height:320px;margin-bottom:12px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:10px;
+  color:var(--muted);margin-bottom:4px}
 .legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 
 /* ── KSDMA MAPS ── */
-.ksdma-maps{display:flex;flex-direction:column;gap:8px}
-.ksdma-map-item{border-radius:8px;overflow:hidden;border:1px solid var(--border)}
-.ksdma-map-label{font-size:9px;font-weight:700;letter-spacing:.5px;color:var(--muted);
-  text-transform:uppercase;padding:5px 8px;background:var(--bg);border-bottom:1px solid var(--border)}
-.ksdma-map-item img{width:100%;display:block}
+.ksdma-map-card{border-radius:8px;overflow:hidden;border:1px solid var(--border);margin-bottom:8px}
+.ksdma-map-label{font-size:9px;font-weight:700;letter-spacing:1px;color:var(--muted);
+  text-transform:uppercase;padding:5px 8px;background:var(--bg4);border-bottom:1px solid var(--border)}
+.ksdma-map-card img{width:100%;display:block}
 
-/* ── LOADING ── */
-#loading{position:fixed;inset:0;z-index:9999;background:#fff;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
-.loading-icon{font-size:48px;animation:spin 3s linear infinite}
-@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-.loading-text{font-size:14px;color:var(--muted);font-weight:500}
-.loading-bar{width:200px;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
-.loading-fill{height:100%;background:#dc2626;border-radius:2px;animation:fill 2.5s ease forwards}
-@keyframes fill{from{width:0}to{width:100%}}
+/* ── LINKS ── */
+.ext-links{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+.ext-link{display:flex;align-items:center;gap:8px;padding:8px 10px;
+  background:var(--bg4);border:1px solid var(--border);border-radius:8px;
+  text-decoration:none;color:var(--muted);font-size:11px;transition:all .2s}
+.ext-link:hover{border-color:var(--border2);color:var(--text)}
+.ext-link-icon{font-size:14px}
 
-/* ── ERROR ── */
-.error-box{background:#fef2f2;border:1px solid #fecaca;border-radius:10px;
-  padding:20px;margin:20px;font-size:13px;color:#991b1b;line-height:1.8}
+/* ── UV SECTION ── */
+.uv-section{margin-top:24px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:12px;overflow:hidden}
+.uv-header{padding:14px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between}
+.uv-title{font-size:13px;font-weight:700;color:var(--text)}
+.uv-badge{background:#1a1000;color:#f59e0b;border:1px solid #713f1244;
+  padding:2px 8px;border-radius:20px;font-size:9px;font-weight:700;letter-spacing:1px}
+.uv-advisory{padding:14px 16px;border-bottom:1px solid var(--border)}
+.uv-advisory p{font-size:11px;line-height:1.8;color:var(--muted);margin-bottom:6px}
+.uv-advisory p:last-child{margin-bottom:0}
+.uv-iframe-wrap{position:relative;padding-bottom:60%;height:0}
+.uv-iframe-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+
+/* ── ADVISORY SECTION ── */
+.advisory-section{margin-top:16px;background:var(--bg3);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.advisory-toggle{width:100%;padding:14px 16px;background:none;border:none;
+  color:var(--text);font-family:inherit;font-size:13px;font-weight:700;
+  text-align:left;cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+.advisory-toggle:hover{background:var(--bg4)}
+.advisory-toggle .arrow{font-size:10px;color:var(--muted);transition:transform .2s}
+.advisory-toggle.open .arrow{transform:rotate(180deg)}
+.advisory-body{display:none;padding:14px 16px;border-top:1px solid var(--border)}
+.advisory-body.visible{display:block}
+.advisory-body p{font-size:11px;line-height:2;color:var(--muted);margin-bottom:6px}
+.advisory-body ul{padding-left:16px;margin-bottom:8px}
+.advisory-body li{font-size:11px;line-height:1.9;color:var(--muted)}
+
+/* ── FOOTER ── */
+footer{background:var(--bg2);border-top:1px solid var(--border);
+  padding:16px 20px;text-align:center;font-size:10px;color:var(--faint);line-height:2}
+footer a{color:var(--muted);text-decoration:none}
+footer a:hover{color:var(--text)}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 
 /* ── RESPONSIVE ── */
 @media(max-width:1100px){.grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:768px){
-  .main-layout{grid-template-columns:1fr}
-  .map-panel{position:static;height:auto;border-left:none;border-top:1px solid var(--border)}
-  #map{min-height:250px}
+  .layout{grid-template-columns:1fr}
+  .side-panel{position:static;height:auto;border-left:none;border-top:1px solid var(--border)}
   .grid{grid-template-columns:1fr}
+  #map{height:250px}
 }
 </style>
 </head>
@@ -177,66 +234,128 @@ header{background:#fff;border-bottom:1px solid var(--border);padding:12px 24px;
 
 <!-- LOADING -->
 <div id="loading">
-  <div class="loading-icon">🌡️</div>
-  <div class="loading-text">Kerala Heat Watch — Loading live data...</div>
-  <div class="loading-bar"><div class="loading-fill"></div></div>
+  <div class="load-icon">🌡️</div>
+  <div class="load-title">KERALA HEAT WATCH</div>
+  <div class="load-sub ml">കേരള ചൂട് നിരീക്ഷണം · IMD + KSDMA</div>
+  <div class="load-bar"><div class="load-fill"></div></div>
 </div>
 
 <!-- HEADER -->
 <header>
-  <div class="logo">
-    <div class="dot"></div>
+  <div class="logo-row">
+    <div class="live-dot"></div>
     <div>
       <div class="logo-text">Kerala <span>Heat</span> Watch</div>
-      <div class="logo-sub ml">കേരള ചൂട് നിരീക്ഷണം · IMD Official Data</div>
+      <div class="logo-sub ml">കേരള ചൂട് നിരീക്ഷണം</div>
     </div>
   </div>
-  <div class="header-right">
-    <div class="imd-badge">IMD LIVE</div>
-    <div class="updated-badge" id="updated-time">Loading...</div>
+  <div class="header-badges">
+    <span class="badge badge-imd">IMD LIVE</span>
+    <span class="badge badge-live" id="updated-badge">Loading...</span>
+    <span class="issued-time ml" id="issued-time" style="display:none"></span>
   </div>
 </header>
 
 <!-- KSDMA ALERT BAR -->
-<div class="ksdma-bar" id="ksdma-bar" style="display:none">
-  <div class="ksdma-header">
-    <div class="ksdma-logo">KSDMA</div>
-    <div class="ksdma-title ml" id="ksdma-title"></div>
+<div class="alert-bar" id="alert-bar">
+  <div class="alert-bar-inner">
+    <div class="alert-header">
+      <span class="ksdma-badge" id="ksdma-badge">KSDMA</span>
+      <span class="alert-title ml" id="alert-title"></span>
+    </div>
+    <div class="alert-body ml" id="alert-body"></div>
   </div>
-  <div class="ksdma-text ml" id="ksdma-text"></div>
 </div>
 
-<!-- MAIN -->
-<div class="main-layout">
+<!-- LAYOUT -->
+<div class="layout">
 
-  <!-- STATIONS PANEL -->
-  <div class="stations-panel">
-    <div class="section-header">
-      <div class="section-title">Weather Stations</div>
-      <div class="station-count" id="station-count"></div>
+  <!-- MAIN PANEL -->
+  <div class="main-panel">
+
+    <!-- Station grid -->
+    <div class="grid-header">
+      <div class="grid-title">Weather Stations</div>
+      <div class="grid-count" id="grid-count"></div>
     </div>
     <div class="grid" id="grid"></div>
-    <div id="error-area"></div>
-  </div>
 
-  <!-- MAP PANEL -->
-  <div class="map-panel">
-    <div class="map-title">Kerala — Station Map</div>
-    <div id="map"></div>
-
-    <div class="map-legend">
-      <div class="legend-row"><div class="legend-dot" style="background:var(--normal)"></div>Normal &lt;36°C</div>
-      <div class="legend-row"><div class="legend-dot" style="background:var(--watch)"></div>Watch 36–38°C</div>
-      <div class="legend-row"><div class="legend-dot" style="background:var(--alert)"></div>Alert 38–40°C</div>
-      <div class="legend-row"><div class="legend-dot" style="background:var(--warning)"></div>Warning &gt;40°C</div>
-      <div class="legend-row"><div class="legend-dot" style="background:#aaa;border:1px solid #ddd"></div>IMD Station</div>
-      <div class="legend-row"><div class="legend-dot" style="background:#aaa;border:2px solid #666;background:none"></div>AWS Station</div>
+    <!-- UV Section -->
+    <div class="uv-section" id="uv-section" style="display:none">
+      <div class="uv-header">
+        <div class="uv-title ml">🔆 UV സൂചിക — KSDMA IoT ശൃംഖല</div>
+        <span class="uv-badge">LIVE · 30s</span>
+      </div>
+      <div class="uv-advisory ml" id="uv-advisory"></div>
+      <div class="uv-iframe-wrap">
+        <iframe src="https://visualize.openiot.in/d/21I1RLOVJ3/lorawan-kerala-cluster?orgId=2&refresh=30s&kiosk"
+          allowfullscreen loading="lazy" title="Kerala UV Index Live Dashboard"></iframe>
+      </div>
     </div>
 
-    <div class="ksdma-maps" id="ksdma-maps"></div>
+    <!-- Cautionary advisory -->
+    <div class="advisory-section" id="advisory-section" style="display:none">
+      <button class="advisory-toggle" onclick="toggleAdvisory(this)">
+        <span class="ml">⚠️ ചൂട് — പൊതുജന ജാഗ്രത നിർദേശങ്ങൾ (KSDMA)</span>
+        <span class="arrow">▼</span>
+      </button>
+      <div class="advisory-body ml" id="advisory-body"></div>
+    </div>
+
   </div>
 
+  <!-- SIDE PANEL -->
+  <div class="side-panel">
+
+    <!-- Map -->
+    <div class="panel-hd">Kerala — Station Map</div>
+    <div id="map"></div>
+
+    <!-- Legend -->
+    <div style="margin-bottom:12px">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--normal)"></div>Normal &lt;36°C</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--watch)"></div>Watch 36–38°C</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--alert)"></div>Alert 38–40°C</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--warning)"></div>Warning &gt;40°C</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#fff;border:1.5px solid #888"></div>AWS (observed)</div>
+    </div>
+
+    <!-- KSDMA maps -->
+    <div id="ksdma-maps"></div>
+
+    <!-- External links -->
+    <div class="panel-hd" style="margin-top:12px">Official Sources</div>
+    <div class="ext-links">
+      <a class="ext-link" href="https://sdma.kerala.gov.in/" target="_blank" rel="noopener">
+        <span class="ext-link-icon">🛡️</span>
+        <span>KSDMA — Kerala SDMA</span>
+      </a>
+      <a class="ext-link" href="https://mausam.imd.gov.in/thiruvananthapuram/" target="_blank" rel="noopener">
+        <span class="ext-link-icon">🌦️</span>
+        <span>IMD Thiruvananthapuram</span>
+      </a>
+      <a class="ext-link" href="https://dss.imd.gov.in/dwr_img/GIS/heatwave.html" target="_blank" rel="noopener">
+        <span class="ext-link-icon">🗺️</span>
+        <span>IMD Heatwave Map</span>
+      </a>
+      <a class="ext-link" href="https://visualize.openiot.in/d/21I1RLOVJ3/lorawan-kerala-cluster?orgId=2&refresh=30s" target="_blank" rel="noopener">
+        <span class="ext-link-icon">📡</span>
+        <span>KSDMA IoT UV Dashboard</span>
+      </a>
+    </div>
+
+  </div>
 </div>
+
+<!-- FOOTER -->
+<footer>
+  Data sources: India Meteorological Department ·
+  <a href="https://sdma.kerala.gov.in/" target="_blank">Kerala SDMA</a> ·
+  <a href="https://visualize.openiot.in" target="_blank">ICFOSS OpenIoT</a>
+  <br>
+  Station data updates every 4 hours via GitHub Actions ·
+  Built with IMD DSS GeoJSON + KSDMA alerts
+</footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
@@ -244,51 +363,31 @@ header{background:#fff;border-bottom:1px solid var(--border);padding:12px 24px;
 const WEATHER_URL = 'data/weather.json';
 const GEOJSON_URL = 'https://raw.githubusercontent.com/medonthomas-alt/Kerala_Open_Maps/main/data/administrative/districts/Kerala_LGD_Districts.geojson';
 
+// UV advisory text (hardcoded Malayalam from KSDMA)
+const UV_ADVISORY_ML = `
+<p>കേരളത്തിൽ കഴിഞ്ഞ 24 മണിക്കൂറിൽ രേഖപ്പെടുത്തപ്പെട്ട ഉയർന്ന അൾട്രാവയലറ്റ് സൂചിക. തുടർച്ചയായി കൂടുതൽ സമയം അൾട്രാവയലറ്റ് രശ്മികൾ ശരീരത്തിൽ ഏൽക്കുന്നത് സൂര്യാതപത്തിനും ത്വക്ക് രോഗങ്ങൾക്കും നേത്രരോഗങ്ങൾക്കും കാരണമാകാം.</p>
+<p>പകൽ 10 മണി മുതൽ 3 മണി വരെ ഉയർന്ന UV സൂചിക രേഖപ്പെടുത്തപ്പെടുന്നു. ആ സമയങ്ങളിൽ നേരിട്ട് സൂര്യപ്രകാശം ഏൽക്കുന്നത് ഒഴിവാക്കുക. തൊപ്പി, കുട, സൺഗ്ലാസ് ഉപയോഗിക്കുക.</p>
+<p>സംസ്ഥാന ദുരന്ത നിവാരണ അതോറിറ്റി സ്ഥാപിച്ച 14 സ്റ്റേഷനുകളിലെ തത്സമയ UV സൂചിക — Source: KSDMA / ICFOSS OpenIoT</p>`;
+
 // ── HELPERS ───────────────────────────────────────────────────────────────
-const alertColors = {
-  normal:  'var(--normal)',
-  watch:   'var(--watch)',
-  alert:   'var(--alert)',
-  warning: 'var(--warning)',
-  extreme: 'var(--extreme)',
-  unknown: 'var(--muted)',
-};
-
-function getAlertLevel(temp) {
-  if (!temp) return 'unknown';
-  if (temp >= 42) return 'extreme';
-  if (temp >= 40) return 'warning';
-  if (temp >= 38) return 'alert';
-  if (temp >= 36) return 'watch';
-  return 'normal';
-}
-
 function isNight(sunrise, sunset) {
   if (!sunrise || !sunset) return false;
   const now = new Date();
-  const h = now.getHours(), m = now.getMinutes();
-  const nowMin = h * 60 + m;
-  const parseTime = t => {
-    const parts = t.split(':');
-    return parseInt(parts[0]) * 60 + parseInt(parts[1]);
-  };
-  const srMin = parseTime(sunrise);
-  const ssMin = parseTime(sunset);
-  // Convert UTC to IST (UTC+5:30)
-  const istMin = (nowMin + 5*60 + 30) % (24*60);
-  return istMin < srMin || istMin > ssMin;
+  const istMin = (now.getUTCHours() * 60 + now.getUTCMinutes() + 330) % 1440;
+  const parse  = t => { const p = t.split(':'); return +p[0]*60 + +p[1]; };
+  return istMin < parse(sunrise) || istMin > parse(sunset);
 }
 
-function weatherEmoji(desc) {
+function wxEmoji(desc) {
   if (!desc) return '🌤';
   const d = desc.toLowerCase();
   if (d.includes('thunder') || d.includes('lightning')) return '⛈';
-  if (d.includes('heavy rain') || d.includes('moderate rain')) return '🌧';
+  if (d.includes('heavy rain')) return '🌧';
   if (d.includes('light rain') || d.includes('drizzle')) return '🌦';
   if (d.includes('rain') || d.includes('shower')) return '🌦';
   if (d.includes('snow')) return '❄';
-  if (d.includes('fog') || d.includes('mist') || d.includes('haze')) return '🌫';
-  if (d.includes('dust') || d.includes('storm')) return '🌪';
+  if (d.includes('fog') || d.includes('mist')) return '🌫';
+  if (d.includes('dust') || d.includes('squall')) return '🌪';
   if (d.includes('generally cloudy') || d.includes('overcast')) return '☁';
   if (d.includes('partly cloudy')) return '⛅';
   if (d.includes('mainly clear') || d.includes('clear')) return '☀';
@@ -296,239 +395,248 @@ function weatherEmoji(desc) {
 }
 
 function dayLabel(offset) {
-  const d = new Date();
-  d.setDate(d.getDate() + offset);
+  const d = new Date(); d.setDate(d.getDate() + offset);
   return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
 }
 
-function fmtTime(t) {
-  if (!t) return '--';
-  return t.substring(0,5);
+function fmtTime(t) { return t ? t.substring(0,5) : '--'; }
+
+function fmtUpdated(iso) {
+  if (!iso) return '--';
+  const d = new Date(iso);
+  const ist = new Date(d.getTime() + 5.5*3600000);
+  return ist.toUTCString().replace('GMT','').trim().slice(0,-3) + ' IST';
 }
 
-function fmtDep(dep) {
-  if (dep === null || dep === undefined) return '--';
-  const sign = dep > 0 ? '+' : '';
-  const cls  = dep > 0 ? 'dep-pos' : dep < 0 ? 'dep-neg' : '';
-  return `<span class="${cls}">${sign}${dep}°</span>`;
+function fmtShort(iso) {
+  if (!iso) return '--';
+  const d = new Date(iso);
+  const ist = new Date(d.getTime() + 5.5*3600000);
+  const hh = String(ist.getUTCHours()).padStart(2,'0');
+  const mm = String(ist.getUTCMinutes()).padStart(2,'0');
+  return `${hh}:${mm} IST`;
 }
 
-function fmtUpdated(fetchedAt) {
-  if (!fetchedAt) return 'Unknown';
-  const d = new Date(fetchedAt);
-  // IST = UTC + 5:30
-  const ist = new Date(d.getTime() + (5.5 * 60 * 60 * 1000));
-  const h = ist.getUTCHours().toString().padStart(2,'0');
-  const m = ist.getUTCMinutes().toString().padStart(2,'0');
-  const day = ist.toUTCString().split(' ').slice(0,4).join(' ');
-  return `${h}:${m} IST`;
-}
-
-// ── BUILD STATION CARD ────────────────────────────────────────────────────
-function buildCard(st) {
+// ── BUILD CARD ────────────────────────────────────────────────────────────
+function buildCard(st, fetchedAt) {
   const temp    = st.fc_max ?? st.obs_max;
-  const tempMin = st.fc_min;
-  const level   = st.alert?.level ?? getAlertLevel(temp);
+  const level   = st.alert?.level ?? 'unknown';
   const mlLabel = st.alert?.ml ?? '--';
   const night   = isNight(st.sunrise, st.sunset);
+  const orbCls  = night ? 'night' : level;
+  const orbIcon = night ? '🌙' : '☀️';
   const dep     = st.fc_dep ?? st.obs_dep;
-  const hum     = st.humidity;
-  const rain    = st.rainfall;
 
-  // Sun / moon icon
-  const sunClass = night ? 'night' : level;
-  const sunEmoji = night ? '🌙' : '☀️';
-
-  // Forecast days
   const days = [2,3,4,5,6,7].map(i => ({
-    day:     dayLabel(i - 1),
-    max:     st[`day${i}_max`],
-    min:     st[`day${i}_min`],
-    weather: st[`day${i}_weather`],
+    day: dayLabel(i-1),
+    max: st[`day${i}_max`],
+    min: st[`day${i}_min`],
+    wx:  st[`day${i}_weather`],
   }));
 
   const forecastHtml = days.map(d => `
     <div class="fd">
-      <div class="fd-day">${d.day}</div>
-      <div class="fd-icon">${weatherEmoji(d.weather)}</div>
-      <div class="fd-max">${d.max ?? '--'}°</div>
-      <div class="fd-min">${d.min ?? '--'}°</div>
+      <div class="fd-d">${d.day}</div>
+      <div class="fd-i">${wxEmoji(d.wx)}</div>
+      <div class="fd-mx">${d.max ?? '--'}°</div>
+      <div class="fd-mn">${d.min ?? '--'}°</div>
     </div>`).join('');
 
-  const sourceLabel = st.source === 'observed' ? 'AWS' : 'IMD';
+  const depHtml = dep !== null && dep !== undefined
+    ? `<div class="stat"><div class="stat-v ${dep>0?'dep-p':dep<0?'dep-n':''}">${dep>0?'+':''}${dep}°</div><div class="stat-l">Dep</div></div>`
+    : '';
+
+  const humHtml = st.humidity !== null && st.humidity !== undefined
+    ? `<div class="stat"><div class="stat-v">💧${st.humidity}%</div><div class="stat-l">Humidity</div></div>`
+    : '';
+
+  const rainHtml = st.rainfall && st.rainfall !== 'NIL'
+    ? `<div class="stat"><div class="stat-v">🌧${st.rainfall}mm</div><div class="stat-l">Rain</div></div>`
+    : '';
 
   return `
   <div class="card ${level}">
     <div class="card-top">
       <div>
-        <div class="station-name">${st.name}</div>
-        <div class="station-district">${st.district}</div>
-        <div class="station-source">${sourceLabel} · ${st.stat_code}</div>
+        <div class="sname">${st.name}</div>
+        <div class="sdist">${st.district}</div>
+        <div class="ssrc">${st.source === 'observed' ? 'AWS' : 'IMD'} · ${st.stat_code}</div>
       </div>
-      <div class="weather-icon">
-        <div class="sun ${sunClass}">${sunEmoji}</div>
-      </div>
+      <div class="orb ${orbCls}">${orbIcon}</div>
     </div>
 
     <div class="temp-row">
-      <div class="temp-max ${level}">${temp ?? '--'}</div>
+      <div class="temp-val ${level}">${temp ?? '--'}</div>
       <div class="temp-unit">°C</div>
-      ${tempMin ? `<div class="temp-min">/ ${tempMin}°</div>` : ''}
+      ${st.fc_min ? `<div class="temp-min">/ ${st.fc_min}°</div>` : ''}
     </div>
 
-    <div class="alert-badge ${level} ml">${mlLabel}</div>
+    <div class="alert-pill ${level} ml">${mlLabel}</div>
 
-    <div class="weather-desc">${st.fc_weather ?? st.obs_weather ?? 'Weather data unavailable'}</div>
+    <div class="wx-desc">${st.fc_weather ?? 'Weather data unavailable'}</div>
 
-    <div class="stats-row">
-      ${hum !== null && hum !== undefined ? `
-      <div class="stat">
-        <div class="stat-val">💧 ${hum}%</div>
-        <div class="stat-lbl">Humidity</div>
-      </div>` : ''}
-      ${dep !== null && dep !== undefined ? `
-      <div class="stat">
-        <div class="stat-val">${fmtDep(dep)}</div>
-        <div class="stat-lbl">Departure</div>
-      </div>` : ''}
-      ${rain && rain !== 'NIL' ? `
-      <div class="stat">
-        <div class="stat-val">🌧 ${rain}mm</div>
-        <div class="stat-lbl">Rainfall</div>
-      </div>` : ''}
-    </div>
+    <div class="stats-row">${humHtml}${depHtml}${rainHtml}</div>
 
-    <div class="forecast-strip">${forecastHtml}</div>
+    <div class="fc-strip">${forecastHtml}</div>
 
-    <div class="card-footer">
-      <div class="sunrise-info">
+    <div class="card-foot">
+      <div class="sun-times">
         <span>🌅 ${fmtTime(st.sunrise)}</span>
         <span>🌇 ${fmtTime(st.sunset)}</span>
       </div>
-      <div>IMD · ${fmtUpdated(null)}</div>
+      <span>${fmtShort(fetchedAt)}</span>
     </div>
   </div>`;
 }
 
-// ── INIT MAP ──────────────────────────────────────────────────────────────
-const map = L.map('map', {zoomControl:false}).setView([10.5, 76.2], 6);
+// ── MAP ───────────────────────────────────────────────────────────────────
+const map = L.map('map', {zoomControl:false, attributionControl:false})
+  .setView([10.5, 76.2], 6);
 L.control.zoom({position:'bottomright'}).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',
+  {maxZoom:18}).addTo(map);
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',{
-  attribution:'© OpenStreetMap © CartoDB', maxZoom:18
-}).addTo(map);
+// ── ADVISORY TOGGLE ───────────────────────────────────────────────────────
+function toggleAdvisory(btn) {
+  btn.classList.toggle('open');
+  const body = document.getElementById('advisory-body');
+  body.classList.toggle('visible');
+}
 
-// ── MAIN INIT ─────────────────────────────────────────────────────────────
+// ── MAIN ──────────────────────────────────────────────────────────────────
 async function init() {
   try {
-    // Load both in parallel
-    const [weatherRes, geoRes] = await Promise.all([
+    const [wRes, gRes] = await Promise.all([
       fetch(WEATHER_URL),
       fetch(GEOJSON_URL)
     ]);
-
-    const data     = await weatherRes.json();
-    const geoData  = await geoRes.json();
+    const data = await wRes.json();
+    const geo  = await gRes.json();
 
     // District GeoJSON
-    L.geoJSON(geoData, {
-      style: { color:'#94a3b8', weight:1.2, fillColor:'#f8fafc', fillOpacity:.6 }
+    L.geoJSON(geo, {
+      style:{ color:'#374151', weight:1, fillColor:'#1c2230', fillOpacity:.8 }
     }).addTo(map);
 
-    // Header update time
-    document.getElementById('updated-time').textContent =
-      'Updated ' + fmtUpdated(data.meta?.fetched_at);
+    const fetchedAt = data.meta?.fetched_at;
+    const stations  = data.stations ?? [];
 
-    // KSDMA alert bar
-    const paras = data.meta?.alert_paragraphs ?? [];
-    if (paras.length > 0) {
-      const bar = document.getElementById('ksdma-bar');
-      bar.style.display = 'block';
-      // First para is often the org name, second is title, rest is body
-      const title = paras[1] ?? paras[0] ?? '';
-      const body  = paras.slice(2).map(p => `<p>${p}</p>`).join('');
-      document.getElementById('ksdma-title').textContent = title;
-      document.getElementById('ksdma-text').innerHTML = body;
+    // Header time
+    document.getElementById('updated-badge').textContent = 'Updated ' + fmtShort(fetchedAt);
+
+    // Issued time
+    const issued = data.meta?.issued_time;
+    if (issued) {
+      const el = document.getElementById('issued-time');
+      el.textContent = 'പുറപ്പെടുവിച്ചത്: ' + issued;
+      el.style.display = 'inline-flex';
     }
 
-    // KSDMA maps in side panel
-    const mapsPanel = document.getElementById('ksdma-maps');
-    const mapItems = [
-      { label:'MAX TEMP MAP', url: data.meta?.max_map },
-      { label:'MIN TEMP MAP', url: data.meta?.min_map },
-      { label:'HUMIDITY MAP', url: data.meta?.humid_map },
-    ].filter(m => m.url);
+    // Alert bar
+    const alertInfo = data.meta?.alert_color;
+    const paras     = data.meta?.alert_paragraphs ?? [];
+    if (paras.length > 0) {
+      const bar   = document.getElementById('alert-bar');
+      const color = alertInfo?.color ?? '#d97706';
+      bar.style.display  = 'block';
+      bar.style.borderBottom = `3px solid ${color}`;
+      bar.style.background   = color + '11';
 
-    if (mapItems.length > 0) {
-      mapsPanel.innerHTML = `<div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">KSDMA Maps</div>` +
-        mapItems.map(m => `
-          <div class="ksdma-map-item">
-            <div class="ksdma-map-label">${m.label}</div>
-            <img src="${m.url}" alt="${m.label}" loading="lazy" onerror="this.parentElement.style.display='none'"/>
-          </div>`).join('');
+      const badge = document.getElementById('ksdma-badge');
+      badge.style.background = color;
+      badge.textContent = alertInfo?.ml ? alertInfo.ml : 'KSDMA';
+
+      // Title is first para containing "അലർട്ട്"
+      const titlePara = paras.find(p => p.includes('അലർട്ട്') || p.includes('Alert')) ?? paras[0];
+      document.getElementById('alert-title').textContent = titlePara;
+      document.getElementById('alert-title').style.color = color;
+
+      const bodyParas = paras.filter(p => p !== titlePara).slice(0,3);
+      document.getElementById('alert-body').innerHTML = bodyParas.map(p => `<p>${p}</p>`).join('');
     }
 
     // Station count
-    const stations = data.stations ?? [];
-    document.getElementById('station-count').textContent =
-      `${stations.length} stations · ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short'})}`;
+    document.getElementById('grid-count').textContent =
+      `${stations.length} stations · ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}`;
 
     // Build cards
     const grid = document.getElementById('grid');
-    const fetchedAt = data.meta?.fetched_at;
-    grid.innerHTML = stations.map(st => {
-      // Inject fetched_at into card footer
-      return buildCard(st).replace('IMD · ' + fmtUpdated(null), 'IMD · ' + fmtUpdated(fetchedAt));
-    }).join('');
+    grid.innerHTML = stations.map(st => buildCard(st, fetchedAt)).join('');
 
     // Map markers
-    const alertColorMap = {
-      normal:'#16a34a', watch:'#d97706', alert:'#ea580c',
-      warning:'#dc2626', extreme:'#7c3aed', unknown:'#6b7280'
+    const colorMap = {
+      normal:'#22c55e', watch:'#f59e0b', alert:'#f97316',
+      warning:'#ef4444', extreme:'#a855f7', unknown:'#6b7280'
     };
-
     stations.forEach(st => {
       if (!st.lat || !st.lon) return;
       const temp  = st.fc_max ?? st.obs_max;
-      const level = st.alert?.level ?? getAlertLevel(temp);
-      const color = alertColorMap[level] ?? '#6b7280';
+      const level = st.alert?.level ?? 'unknown';
+      const color = colorMap[level] ?? '#6b7280';
       const isAWS = st.source === 'observed';
 
-      const marker = L.circleMarker([st.lat, st.lon], {
+      L.circleMarker([st.lat, st.lon], {
         radius:      isAWS ? 5 : 7,
-        fillColor:   isAWS ? '#fff' : color,
+        fillColor:   isAWS ? 'transparent' : color,
         color:       color,
-        weight:      isAWS ? 2 : 1.5,
-        fillOpacity: isAWS ? 0 : 0.9,
-      }).addTo(map);
-
-      marker.bindPopup(`
-        <div style="font-family:'Outfit',sans-serif;min-width:140px">
+        weight:      isAWS ? 1.5 : 1,
+        fillOpacity: isAWS ? 0 : .9,
+      }).addTo(map).bindPopup(`
+        <div style="font-family:'Space Grotesk',sans-serif;background:#161b24;color:#e2e8f0;padding:8px;border-radius:8px;min-width:140px">
           <div style="font-weight:700;font-size:13px;margin-bottom:4px">${st.name}</div>
-          <div style="font-size:20px;font-weight:800;color:${color}">${temp ?? '--'}°C</div>
-          <div style="font-size:11px;color:#666;margin-top:2px">${st.fc_weather ?? ''}</div>
-          ${st.humidity ? `<div style="font-size:11px;color:#888;margin-top:4px">💧 ${st.humidity}% humidity</div>` : ''}
-          <div style="font-size:10px;color:#999;margin-top:4px">${st.source === 'observed' ? 'AWS Station' : 'IMD Station'}</div>
-        </div>`, { maxWidth: 200 });
+          <div style="font-size:24px;font-weight:800;color:${color}">${temp ?? '--'}°C</div>
+          <div style="font-size:10px;color:#94a3b8;margin-top:3px">${st.fc_weather?.substring(0,40) ?? ''}...</div>
+          ${st.humidity ? `<div style="font-size:10px;color:#94a3b8;margin-top:3px">💧 ${st.humidity}%</div>` : ''}
+          <div style="font-size:9px;color:#4b5563;margin-top:4px">${isAWS ? 'AWS Station' : 'IMD Station'} · ${st.stat_code}</div>
+        </div>`, {className:'dark-popup'});
     });
+
+    // KSDMA maps
+    const mapsDiv = document.getElementById('ksdma-maps');
+    const mapItems = [
+      {label:'MAX TEMP', url: data.meta?.max_map},
+      {label:'MIN TEMP', url: data.meta?.min_map},
+      {label:'HUMIDITY', url: data.meta?.humid_map},
+    ].filter(m => m.url);
+
+    if (mapItems.length > 0) {
+      mapsDiv.innerHTML = `<div class="panel-hd">KSDMA Maps</div>` +
+        mapItems.map(m => `
+          <div class="ksdma-map-card">
+            <div class="ksdma-map-label">${m.label}</div>
+            <img src="${m.url}" alt="${m.label}" loading="lazy"
+              onerror="this.parentElement.style.display='none'"/>
+          </div>`).join('');
+    }
+
+    // UV section
+    document.getElementById('uv-section').style.display = 'block';
+    document.getElementById('uv-advisory').innerHTML = UV_ADVISORY_ML;
+
+    // Advisory section — use KSDMA paragraphs that are long enough
+    const longParas = paras.filter(p => p.length > 80);
+    if (longParas.length > 0) {
+      document.getElementById('advisory-section').style.display = 'block';
+      document.getElementById('advisory-body').innerHTML =
+        longParas.map(p => `<p>${p}</p>`).join('');
+    }
 
     // Hide loading
     document.getElementById('loading').style.display = 'none';
 
   } catch(e) {
     document.getElementById('loading').style.display = 'none';
-    document.getElementById('error-area').innerHTML = `
-      <div class="error-box">
-        <strong>Unable to load weather data.</strong><br>
+    document.getElementById('grid').innerHTML = `
+      <div style="grid-column:1/-1;background:#1c0000;border:1px solid #7f1d1d;
+        border-radius:12px;padding:24px;color:#fca5a5;font-size:13px;line-height:2">
+        <strong style="color:#ef4444">Unable to load weather data.</strong><br>
         Please check your internet connection or try again in a few minutes.<br>
-        <small style="color:#9ca3af">${e.message}</small>
+        <small style="color:#6b7280">${e.message}</small>
       </div>`;
   }
 }
 
 init();
-
-// Auto-refresh every 30 minutes
 setInterval(() => location.reload(), 30 * 60 * 1000);
 </script>
 </body>
