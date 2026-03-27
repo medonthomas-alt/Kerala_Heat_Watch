@@ -6,109 +6,248 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 import urllib3
 
-urllib3.disable_warnings()
+urllib3.disable_warnings()  # IMD uses non-standard SSL cert
 
-# ── CONFIGURATION ─────────────────────────────────────────────────────────
-KSDMA_URL = "https://sdma.kerala.gov.in/temperature/"
-BASE_URL = "https://sdma.kerala.gov.in"
-URLS = {
+# ── OFFICIAL KERALA STATIONS (IMD Station Directory — ground truth) ────────
+KERALA_OFFICIAL = {
+    "43352": {"name": "Alappuzha",                    "district": "Alappuzha"},
+    "43315": {"name": "Kannur",                       "district": "Kannur"},
+    "43253": {"name": "Kannur AMS",                   "district": "Kannur"},
+    "43336": {"name": "Kochi (CIAL)",                 "district": "Ernakulam"},
+    "43353": {"name": "Kochi (NAS)",                  "district": "Ernakulam"},
+    "43355": {"name": "Kottayam",                     "district": "Kottayam"},
+    "43314": {"name": "Kozhikode",                    "district": "Kozhikode"},
+    "43320": {"name": "Kozhikode (Airport)",          "district": "Malappuram"},
+    "43335": {"name": "Palakkad",                     "district": "Palakkad"},
+    "43354": {"name": "Punalur",                      "district": "Kollam"},
+    "43371": {"name": "Thiruvananthapuram",           "district": "Thiruvananthapuram"},
+    "43372": {"name": "Thiruvananthapuram (Airport)", "district": "Thiruvananthapuram"},
+    "43357": {"name": "Thrissur (Vellanikara)",       "district": "Thrissur"},
+}
+
+# ── KERALA BOUNDS FOR OBSERVED AWS STATIONS ───────────────────────────────
+KL_LAT_MIN, KL_LAT_MAX = 8.0,  12.5
+KL_LON_MIN, KL_LON_MAX = 74.8, 76.8
+
+EXCLUDE_NAMES = [
+    "OOTY", "MANDYA", "CHANDUR", "COIMBATORE",
+    "MYSORE", "MYSURU", "UDHAGAMANDALAM", "COONOOR",
+    "BANGALORE", "BENGALURU"
+]
+
+# ── URLs ──────────────────────────────────────────────────────────────────
+IMD_URLS = {
     "forecast": "https://dss.imd.gov.in/dwr_img/GIS/CD_Status_Forecast.json",
     "observed": "https://dss.imd.gov.in/dwr_img/GIS/Observed_Stations.json",
     "warnings": "https://dss.imd.gov.in/dwr_img/GIS/HWCW_Status.json",
 }
+KSDMA_URL  = "https://sdma.kerala.gov.in/temperature/"
+KSDMA_BASE = "https://sdma.kerala.gov.in"
 
-# Precise Mapping for Clean Names (Coordinates -> Precise Name)
-# This prevents "AWS 11.03" by mapping coordinates to your preferred names.
-PRECISE_NAMES = [
-    {"name": "Thiruvananthapuram (Airport)", "lat": 8.48, "lon": 76.95},
-    {"name": "Punalur", "lat": 9.01, "lon": 76.92},
-    {"name": "Alappuzha", "lat": 9.49, "lon": 76.33},
-    {"name": "Kottayam", "lat": 9.53, "lon": 76.60},
-    {"name": "Kochi", "lat": 10.23, "lon": 76.40},
-    {"name": "Vellanikara", "lat": 10.54, "lon": 76.27},
-    {"name": "Palakkad", "lat": 10.77, "lon": 76.65},
-    {"name": "Kozhikode", "lat": 11.25, "lon": 75.77},
-    {"name": "Kannur", "lat": 11.91, "lon": 75.36},
-    {"name": "Tirur", "lat": 10.91, "lon": 75.92},
-    {"name": "Thavanur", "lat": 10.84, "lon": 76.00}
-]
+IMD_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+    "Referer":    "https://dss.imd.gov.in/dwr_img/GIS/heatwave.html",
+}
 
-# ── SCRAPE KSDMA DATA (Text & Maps) ───────────────────────────────────────
-def get_ksdma_meta():
+# ── FETCH JSON ────────────────────────────────────────────────────────────
+def fetch_json(url, label):
     try:
-        r = requests.get(KSDMA_URL, timeout=20, verify=False)
-        soup = BeautifulSoup(r.text, 'html.parser')
-        maps = {"max": None, "min": None, "humid": None}
-        
-        # Link Chasing for Maps
-        max_l = soup.find('a', string=re.compile("Maximum Temperature", re.I))
-        if max_l: maps["max"] = max_l.get('href') if max_l.get('href').startswith('http') else BASE_URL + max_l.get('href')
-        
-        humid_img = soup.find('img', src=re.compile("Hot-Humid", re.I))
-        if humid_img: maps["humid"] = humid_img.get('src') if humid_img.get('src').startswith('http') else BASE_URL + humid_img.get('src')
+        r = requests.get(url, headers=IMD_HEADERS, timeout=30, verify=False)
+        if r.status_code == 200:
+            print(f"  ✅ {label} fetched")
+            return r.json()
+        print(f"  ❌ {label} — HTTP {r.status_code}")
+        return None
+    except Exception as e:
+        print(f"  ❌ {label} — {e}")
+        return None
 
-        all_p = [p.get_text(strip=True) for p in soup.find_all('p') if len(p.get_text()) > 30]
+# ── SCRAPE KSDMA ──────────────────────────────────────────────────────────
+def get_ksdma_meta():
+    print("  Scraping KSDMA...")
+    try:
+        r = requests.get(KSDMA_URL, timeout=20, verify=False,
+                         headers={"User-Agent": "Mozilla/5.0"})
+        soup = BeautifulSoup(r.text, "html.parser")
+
+        paragraphs = [
+            p.get_text(strip=True)
+            for p in soup.find_all("p")
+            if len(p.get_text(strip=True)) > 30
+        ]
+
+        max_map = None
+        max_link = soup.find("a", string=re.compile("maximum temperature", re.I))
+        if max_link and max_link.get("href"):
+            href = max_link["href"]
+            max_map = href if href.startswith("http") else KSDMA_BASE + href
+
+        humid_map = None
+        humid_img = soup.find("img", src=re.compile("humid|hot", re.I))
+        if humid_img and humid_img.get("src"):
+            src = humid_img["src"]
+            humid_map = src if src.startswith("http") else KSDMA_BASE + src
+
+        print(f"  ✅ KSDMA — {len(paragraphs)} paragraphs")
         return {
-            "alert_paragraphs": all_p[:3],
-            "max_map": maps["max"],
-            "humid_map": maps["humid"],
-            "sync_at": datetime.now().strftime("%Y-%m-%d %H:%M")
+            "ksdma_source":     "Kerala State Disaster Management Authority",
+            "alert_paragraphs": paragraphs[:4],
+            "max_map":          max_map,
+            "humid_map":        humid_map,
         }
-    except: return {"alert_paragraphs": ["Data temporarily unavailable"], "sync_at": "Error"}
 
-# ── PROCESS STATION NAMES (The Fuzzy Fix) ─────────────────────────────────
-def get_precise_name(lat, lon, original_name):
-    for target in PRECISE_NAMES:
-        if abs(lat - target['lat']) < 0.1 and abs(lon - target['lon']) < 0.1:
-            return target['name']
-    return original_name if original_name and not original_name.isdigit() else f"Station {lat}"
+    except Exception as e:
+        print(f"  ❌ KSDMA failed — {e}")
+        return {
+            "ksdma_source":     "Kerala State Disaster Management Authority",
+            "alert_paragraphs": ["Alert data temporarily unavailable. Please check sdma.kerala.gov.in"],
+            "max_map":          None,
+            "humid_map":        None,
+        }
 
-# ── MAIN FETCH FUNCTION ───────────────────────────────────────────────────
+# ── CHECK KERALA BOUNDARY ─────────────────────────────────────────────────
+def is_kerala_aws(lat, lon):
+    if lat is None or lon is None:
+        return False
+    try:
+        return (KL_LAT_MIN <= float(lat) <= KL_LAT_MAX and
+                KL_LON_MIN <= float(lon) <= KL_LON_MAX)
+    except:
+        return False
+
+# ── EXTRACT STATION ───────────────────────────────────────────────────────
+def extract(props, name, district, source):
+    return {
+        "stat_code":  str(props.get("Stat_Code", "")),
+        "name":       name,
+        "district":   district,
+        "lat":        props.get("Latitude"),
+        "lon":        props.get("Longitude"),
+        "source":     source,
+        "obs_max":    props.get("PD_Mx_Temp"),
+        "obs_dep":    props.get("PD_Mx_Dep"),
+        "rainfall":   props.get("Pt_24_Rain"),
+        "humidity":   props.get("D1_RH_0830"),
+        "fc_max":     props.get("D1F_Mx_Tem"),
+        "fc_min":     props.get("D1F_Mn_Tem"),
+        "fc_dep":     props.get("D1F_Mx_Dep"),
+        "fc_weather": props.get("D1F_Weathr"),
+        "day2_max": props.get("D2_Mx_Temp"), "day2_min": props.get("D2_Mn_Temp"), "day2_weather": props.get("D2_Weather"),
+        "day3_max": props.get("D3_Mx_Temp"), "day3_min": props.get("D3_Mn_Temp"), "day3_weather": props.get("D3_Weather"),
+        "day4_max": props.get("D4_Mx_Temp"), "day4_min": props.get("D4_Mn_Temp"), "day4_weather": props.get("D4_Weather"),
+        "day5_max": props.get("D5_Mx_Temp"), "day5_min": props.get("D5_Mn_Temp"), "day5_weather": props.get("D5_Weather"),
+        "day6_max": props.get("D6_Mx_Temp"), "day6_min": props.get("D6_Mn_Temp"), "day6_weather": props.get("D6_Weather"),
+        "day7_max": props.get("D7_Mx_Temp"), "day7_min": props.get("D7_Mn_Temp"), "day7_weather": props.get("D7_Weather"),
+        "sunrise":    props.get("Sr_Time"),
+        "sunset":     props.get("Ss_Time"),
+        "warning_color": None,
+        "alert":         None,
+    }
+
+# ── ALERT LEVEL ───────────────────────────────────────────────────────────
+def get_alert(temp):
+    if temp is None:
+        return {"level": "unknown", "ml": "വിവരമില്ല", "en": "No Data"}
+    t = float(temp)
+    if t >= 42: return {"level": "extreme", "ml": "അതീവ ജാഗ്രത", "en": "Extreme Danger"}
+    if t >= 40: return {"level": "warning", "ml": "മുന്നറിയിപ്പ്", "en": "Warning"}
+    if t >= 38: return {"level": "alert",   "ml": "അലേർട്ട്",      "en": "Alert"}
+    if t >= 36: return {"level": "watch",   "ml": "ജാഗ്രത",        "en": "Watch"}
+    return             {"level": "normal",  "ml": "സാധാരണ",       "en": "Normal"}
+
+# ── MAIN ──────────────────────────────────────────────────────────────────
 def fetch_all():
-    print("🚀 Running Unified War Room Sync...")
-    
-    # 1. Get KSDMA Official Alerts/Maps
-    meta = get_ksdma_meta()
+    print("\n🌡  Kerala Heat Watch — Data Fetch")
+    print(f"    {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}")
+    print("─" * 52)
 
-    # 2. Fetch IMD JSONs
-    forecast_res = requests.get(URLS["forecast"], verify=False).json()
-    stations = []
+    forecast_data = fetch_json(IMD_URLS["forecast"], "CD_Status_Forecast")
+    observed_data = fetch_json(IMD_URLS["observed"], "Observed_Stations")
+    warnings_data = fetch_json(IMD_URLS["warnings"], "HWCW_Status")
+    ksdma_meta    = get_ksdma_meta()
 
-    for feature in forecast_res.get("features", []):
-        p = feature["properties"]
-        lat, lon = p.get("Latitude"), p.get("Longitude")
-        
-        # Filter for Kerala Boundary
-        if lat and lon and 8.0 <= lat <= 13.0 and 74.5 <= lon <= 77.5:
-            temp = p.get("D1F_Mx_Tem") or 0
-            
-            # Determine Status
-            status = "Normal"
-            if temp >= 38: status = "Alert"
-            elif temp >= 36: status = "Watch"
+    stations = {}
 
-            stations.append({
-                "name": get_precise_name(lat, lon, p.get("Stat_Name")),
-                "lat": lat, "lon": lon,
-                "temp": temp,
-                "status": status,
-                "departure": p.get("D1F_Mx_Dep", 0),
-                "humidity": p.get("D1_RH_0830", 0),
-                "rainfall": p.get("D1_Rainfall", 0),
-                "warning_code": p.get("warning_color", 4)
-            })
+    # Step 1 — Official Kerala stations
+    if forecast_data:
+        for feature in forecast_data.get("features", []):
+            props = feature.get("properties", {})
+            code  = str(props.get("Stat_Code", ""))
+            if code in KERALA_OFFICIAL:
+                info = KERALA_OFFICIAL[code]
+                stations[code] = extract(props, info["name"], info["district"], "forecast")
 
-    # 3. Create Final Unified JSON
+    print(f"\n  📍 Official stations: {len(stations)}/13")
+
+    # Step 2 — Observed AWS inside Kerala
+    obs_count = 0
+    if observed_data:
+        for feature in observed_data.get("features", []):
+            props     = feature.get("properties", {})
+            code      = str(props.get("Stat_Code", ""))
+            lat       = props.get("Latitude")
+            lon       = props.get("Longitude")
+            stat_name = str(props.get("Stat_Name", "")).upper()
+            if code in stations: continue
+            if not is_kerala_aws(lat, lon): continue
+            if any(x in stat_name for x in EXCLUDE_NAMES): continue
+            name = str(props.get("Stat_Name", f"AWS {code}")).title()
+            stations[code] = extract(props, name, "Kerala", "observed")
+            obs_count += 1
+
+    print(f"  📡 AWS stations: {obs_count}")
+
+    # Step 3 — Warning colours
+    matched = 0
+    if warnings_data:
+        for feature in warnings_data.get("features", []):
+            props = feature.get("properties", {})
+            code  = str(props.get("Stat_Code", ""))
+            if code in stations:
+                color = (props.get("Day1_Color") or props.get("HW_Color") or props.get("Color"))
+                stations[code]["warning_color"] = color
+                matched += 1
+
+    print(f"  🚨 Warning colours: {matched}")
+
+    # Step 4 — Alert levels
+    for s in stations.values():
+        temp = s.get("fc_max") or s.get("obs_max")
+        s["alert"] = get_alert(temp)
+
+    # Step 5 — Sort south to north
+    sorted_stations = sorted(
+        stations.values(),
+        key=lambda s: float(s.get("lat") or 0)
+    )
+
+    # Step 6 — Save atomically
     output = {
-        "meta": meta,
-        "stations": sorted(stations, key=lambda x: x['lat'])
+        "meta": {
+            "fetched_at":    datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "station_count": len(sorted_stations),
+            "imd_source":    "India Meteorological Department",
+            **ksdma_meta,
+        },
+        "stations": sorted_stations,
     }
 
     os.makedirs("data", exist_ok=True)
-    with open("data/weather.json", "w", encoding="utf-8") as f:
+    tmp   = "data/weather.tmp.json"
+    final = "data/weather.json"
+    with open(tmp, "w", encoding="utf-8") as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
-    
-    print(f"✅ Saved {len(stations)} stations with KSDMA Alerts.")
+    os.replace(tmp, final)
+
+    print(f"\n  💾 Saved → {final}")
+    print(f"  ✅ Total: {len(sorted_stations)} stations")
+    print("─" * 52)
+    print(f"\n  {'Station':<34} {'Temp':>6}  Alert")
+    print(f"  {'─'*34} {'─'*6}  {'─'*14}")
+    for s in sorted_stations:
+        temp  = s.get("fc_max") or s.get("obs_max")
+        tstr  = f"{temp}°C" if temp else "null"
+        print(f"  {s['name']:<34} {tstr:>6}  {s['alert']['en']}")
 
 if __name__ == "__main__":
     fetch_all()
