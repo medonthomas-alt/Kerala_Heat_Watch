@@ -1,6 +1,6 @@
 {
   "meta": {
-    "fetched_at": "2026-03-27T11:30:52Z",
+    "fetched_at": "2026-03-27T12:41:11Z",
     "station_count": 14,
     "imd_source": "India Meteorological Department",
     "ksdma_source": "Kerala State Disaster Management Authority",
@@ -78,9 +78,9 @@
       "obs_dep": 1.1,
       "rainfall": "NIL",
       "humidity": 84.0,
-      "fc_max": 36.0,
+      "fc_max": 35.0,
       "fc_min": 24.0,
-      "fc_dep": 1.8,
+      "fc_dep": 0.8,
       "fc_weather": "Mainly Clear sky",
       "day2_max": 36.0,
       "day2_min": 24.0,
@@ -104,9 +104,9 @@
       "sunset": "18:33:00",
       "warning_color": null,
       "alert": {
-        "level": "watch",
-        "ml": "ജാഗ്രത",
-        "en": "Watch"
+        "level": "normal",
+        "ml": "സാധാരണ",
+        "en": "Normal"
       }
     },
     {
@@ -123,7 +123,7 @@
       "fc_max": 33.0,
       "fc_min": 25.0,
       "fc_dep": null,
-      "fc_weather": "Mainly Clear sky",
+      "fc_weather": "Partly cloudy sky with one or two spells of rain or thundershowers",
       "day2_max": 33.0,
       "day2_min": 25.0,
       "day2_weather": "Partly cloudy sky with one or two spells of rain or thundershowers",
@@ -540,9 +540,9 @@
       "obs_dep": 1.7,
       "rainfall": "NIL",
       "humidity": 80.0,
-      "fc_max": 37.0,
+      "fc_max": 35.0,
       "fc_min": 27.0,
-      "fc_dep": 2.7,
+      "fc_dep": 0.7,
       "fc_weather": "Partly cloudy sky with one or two spells of rain or thundershowers",
       "day2_max": 37.0,
       "day2_min": 27.0,
@@ -566,9 +566,9 @@
       "sunset": "18:38:00",
       "warning_color": null,
       "alert": {
-        "level": "watch",
-        "ml": "ജാഗ്രത",
-        "en": "Watch"
+        "level": "normal",
+        "ml": "സാധാരണ",
+        "en": "Normal"
       }
     },
     {
@@ -582,9 +582,9 @@
       "obs_dep": -0.5,
       "rainfall": "NIL",
       "humidity": 76.0,
-      "fc_max": 34.0,
+      "fc_max": 35.0,
       "fc_min": 27.0,
-      "fc_dep": -0.9,
+      "fc_dep": 0.1,
       "fc_weather": "Partly cloudy sky with one or two spells of rain or thundershowers",
       "day2_max": 34.0,
       "day2_min": 27.0,
