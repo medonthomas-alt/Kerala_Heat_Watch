@@ -1,6 +1,6 @@
 {
   "meta": {
-    "fetched_at": "2026-04-07T12:58:25Z",
+    "fetched_at": "2026-04-07T16:46:11Z",
     "station_count": 12,
     "imd_source": "India Meteorological Department",
     "ksdma_source": "Kerala State Disaster Management Authority",
@@ -36,9 +36,9 @@
       "obs_dep": 2.4,
       "rainfall": "NIL",
       "humidity": 69.0,
-      "fc_max": 35.0,
+      "fc_max": 34.0,
       "fc_min": 26.0,
-      "fc_dep": 1.9,
+      "fc_dep": 0.9,
       "fc_weather": "Partly cloudy sky with possibility of moderate rain or Thunderstorm",
       "day2_max": 35.0,
       "day2_min": 26.0,
@@ -120,7 +120,7 @@
       "obs_dep": null,
       "rainfall": "NIL",
       "humidity": 88.0,
-      "fc_max": 35.0,
+      "fc_max": 33.0,
       "fc_min": 26.0,
       "fc_dep": null,
       "fc_weather": "Mainly clear sky becoming partly cloudy towards afternoon or evening",
@@ -162,9 +162,9 @@
       "obs_dep": 0.2,
       "rainfall": "NIL",
       "humidity": 93.0,
-      "fc_max": 37.0,
+      "fc_max": 35.0,
       "fc_min": 25.0,
-      "fc_dep": 1.2,
+      "fc_dep": -0.8,
       "fc_weather": "Partly cloudy sky with possibility of moderate rain or Thunderstorm",
       "day2_max": 37.0,
       "day2_min": 25.0,
@@ -188,9 +188,9 @@
       "sunset": "18:32:00",
       "warning_color": null,
       "alert": {
-        "level": "watch",
-        "ml": "ജാഗ്രത",
-        "en": "Watch"
+        "level": "normal",
+        "ml": "സാധാരണ",
+        "en": "Normal"
       }
     },
     {
@@ -204,9 +204,9 @@
       "obs_dep": 1.0,
       "rainfall": "NIL",
       "humidity": 87.0,
-      "fc_max": 36.0,
+      "fc_max": 35.0,
       "fc_min": 25.0,
-      "fc_dep": 1.8,
+      "fc_dep": 0.8,
       "fc_weather": "Mainly clear sky becoming partly cloudy towards afternoon or evening",
       "day2_max": 36.0,
       "day2_min": 25.0,
@@ -230,9 +230,9 @@
       "sunset": "18:34:00",
       "warning_color": null,
       "alert": {
-        "level": "watch",
-        "ml": "ജാഗ്രത",
-        "en": "Watch"
+        "level": "normal",
+        "ml": "സാധാരണ",
+        "en": "Normal"
       }
     },
     {
@@ -288,7 +288,7 @@
       "obs_dep": null,
       "rainfall": "NIL",
       "humidity": 71.0,
-      "fc_max": 36.0,
+      "fc_max": 35.0,
       "fc_min": 25.0,
       "fc_dep": null,
       "fc_weather": "Partly cloudy sky",
@@ -314,9 +314,9 @@
       "sunset": "18:36",
       "warning_color": null,
       "alert": {
-        "level": "watch",
-        "ml": "ജാഗ്രത",
-        "en": "Watch"
+        "level": "normal",
+        "ml": "സാധാരണ",
+        "en": "Normal"
       }
     },
     {
@@ -372,7 +372,7 @@
       "obs_dep": null,
       "rainfall": "NIL",
       "humidity": 67.0,
-      "fc_max": 35.0,
+      "fc_max": 33.0,
       "fc_min": 26.0,
       "fc_dep": null,
       "fc_weather": "Partly cloudy sky",
@@ -414,35 +414,35 @@
       "obs_dep": null,
       "rainfall": "NIL",
       "humidity": null,
-      "fc_max": 33.0,
-      "fc_min": 27.0,
+      "fc_max": 38.0,
+      "fc_min": 26.0,
       "fc_dep": null,
-      "fc_weather": "Partly cloudy sky with possibility of rain or Thunderstorm or Duststorm",
-      "day2_max": 34.0,
-      "day2_min": 27.0,
-      "day2_weather": "Partly cloudy sky",
-      "day3_max": 35.0,
-      "day3_min": 28.0,
-      "day3_weather": "Partly cloudy sky",
-      "day4_max": 35.0,
-      "day4_min": 28.0,
-      "day4_weather": "Partly cloudy sky",
-      "day5_max": 35.0,
-      "day5_min": 28.0,
+      "fc_weather": "Partly cloudy sky with possibility of moderate rain or Thunderstorm",
+      "day2_max": 38.0,
+      "day2_min": 26.0,
+      "day2_weather": "Partly cloudy sky with possibility of moderate rain or Thunderstorm",
+      "day3_max": 39.0,
+      "day3_min": 27.0,
+      "day3_weather": "Generally cloudy sky with Light rain",
+      "day4_max": 38.0,
+      "day4_min": 27.0,
+      "day4_weather": "Generally cloudy sky with Light rain",
+      "day5_max": 39.0,
+      "day5_min": 27.0,
       "day5_weather": "Partly cloudy sky",
-      "day6_max": 34.0,
-      "day6_min": 28.0,
+      "day6_max": 39.0,
+      "day6_min": 27.0,
       "day6_weather": "Partly cloudy sky",
-      "day7_max": 35.0,
+      "day7_max": 39.0,
       "day7_min": 27.0,
       "day7_weather": "Partly cloudy sky",
       "sunrise": "06:20",
       "sunset": "18:37",
       "warning_color": null,
       "alert": {
-        "level": "normal",
-        "ml": "സാധാരണ",
-        "en": "Normal"
+        "level": "alert",
+        "ml": "അലേർട്ട്",
+        "en": "Alert"
       }
     },
     {
