@@ -1,6 +1,6 @@
 {
   "meta": {
-    "fetched_at": "2026-04-10T05:53:27Z",
+    "fetched_at": "2026-04-10T08:59:39Z",
     "station_count": 13,
     "imd_source": "India Meteorological Department",
     "ksdma_source": "Kerala State Disaster Management Authority",
@@ -8,10 +8,10 @@
     "alert_paragraphs": [
       "Kerala State Disaster Management Authority",
       "ഉയർന്ന താപനില മുന്നറിയിപ്പ് – മഞ്ഞ അലർട്ട്",
-      "പുറപ്പെടുവിച്ച സമയം 01.00 PM 09/04/2026",
-      "ഇന്ന് (09/04/2026) പാലക്കാട് ജില്ലയിൽ ഉയർന്ന താപനില 39 °C വരെയും; കൊല്ലം,പത്തനംതിട്ട, കോഴിക്കോട് ജില്ലകളിൽ ഉയർന്ന താപനില 37°C വരെയും; കോട്ടയം, ആലപ്പുഴ, തൃശൂർ, കണ്ണൂർ, കാസർഗോഡ് ജില്ലകളിൽ ഉയർന്ന താപനില 36°C വരെയും ഉയരാൻ (സാധാരണയെക്കാൾ 2 to 3˚C വരെ കൂടുതൽ) സാധ്യതയെന്ന് കേന്ദ്ര കാലാവസ്ഥ വകുപ്പ് അറിയിക്കുന്നു.",
-      "ഉയർന്ന താപനിലയും ഈർപ്പമുള്ള വായുവും കാരണം ഈ ജില്ലകളിൽ, മലയോര മേഖലകളിലൊഴികെ ഇന്ന് (09/04/2026) ചൂടും അസ്വസ്ഥതയുമുള്ള കാലാവസ്ഥയ്ക്ക് സാധ്യതയുണ്ട്.",
-      "സംസ്ഥാനത്ത് പൊതുവെ ചൂട് വർധിച്ചു വരുന്ന സാഹചര്യത്തിൽ പൊതുജനങ്ങൾക്കായി സംസ്ഥാന ദുരന്ത നിവാരണ അതോറിറ്റി പുറപ്പെടുവിക്കുന്ന ജാഗ്രത നിർദേശങ്ങൾ."
+      "പുറപ്പെടുവിച്ച സമയം 01.30 PM 10/04/2026",
+      "ഇന്നും നാളെയും (10/04/2026 & 11/04/2026) പാലക്കാട് ജില്ലയിൽ ഉയർന്ന താപനില 39 °C വരെയും; കൊല്ലം ജില്ലയിൽ ഉയർന്ന താപനില 38°C വരെയും; തിരുവനന്തപുരം, പത്തനംതിട്ട, ആലപ്പുഴ, കോട്ടയം, എറണാകുളം, തൃശ്ശൂർ ജില്ലകളിൽ ഉയർന്ന താപനില 37°C വരെയും; മലപ്പുറം, കോഴിക്കോട്, കണ്ണൂർ, കാസറഗോഡ് ജില്ലകളിൽ 36°C വരെയും ഉയരാൻ (സാധാരണയെക്കാൾ 2 to 3˚C വരെ കൂടുതൽ) സാധ്യതയെന്ന് കേന്ദ്ര കാലാവസ്ഥ വകുപ്പ് അറിയിക്കുന്നു.",
+      "ഉയർന്ന താപനിലയും ഈർപ്പമുള്ള വായുവും കാരണം ഈ ജില്ലകളിൽ, മലയോര മേഖലകളിലൊഴികെ ഇന്നും നാളെയും (10/04/2026 & 11/04/2026) ചൂടും അസ്വസ്ഥതയുമുള്ള കാലാവസ്ഥയ്ക്ക് സാധ്യതയുണ്ട്.",
+      "സംസ്ഥാനത്ത് ഉയർന്ന ചൂട് റിപ്പോർട്ട് ചെയ്യപ്പെടുന്ന സാഹചര്യത്തിൽ പൊതുജനങ്ങൾക്കായി സംസ്ഥാന ദുരന്ത നിവാരണ അതോറിറ്റി പുറപ്പെടുവിക്കുന്ന ജാഗ്രത നിർദേശങ്ങൾ."
     ],
     "alert_color": {
       "level": "yellow",
@@ -19,10 +19,10 @@
       "ml": "മഞ്ഞ അലർട്ട്",
       "en": "Yellow Alert"
     },
-    "issued_time": "01.00 PM 09/04/2026",
-    "max_map": "https://sdma.kerala.gov.in/wp-content/uploads/2026/04/WhatsApp-Image-2026-04-09-at-12.33.47-PM.jpeg",
+    "issued_time": "01.30 PM 10/04/2026",
+    "max_map": "https://sdma.kerala.gov.in/wp-content/uploads/2026/04/Temp-Max-2.jpeg",
     "min_map": "https://sdma.kerala.gov.in/wp-content/uploads/2026/02/T-MIN-8.jpeg",
-    "humid_map": null
+    "humid_map": "https://sdma.kerala.gov.in/wp-content/uploads/2026/04/Hot-Humid-1.jpeg"
   },
   "stations": [
     {
@@ -36,9 +36,9 @@
       "obs_dep": 0.6,
       "rainfall": "0.30",
       "humidity": 68.0,
-      "fc_max": 34.0,
+      "fc_max": 35.0,
       "fc_min": 27.0,
-      "fc_dep": 0.9,
+      "fc_dep": 1.9,
       "fc_weather": "Partly cloudy sky with one or two spells of rain or thundershowers",
       "day2_max": 34.0,
       "day2_min": 26.0,
@@ -78,9 +78,9 @@
       "obs_dep": 1.4,
       "rainfall": "2.00",
       "humidity": 79.0,
-      "fc_max": 35.0,
+      "fc_max": 37.0,
       "fc_min": 27.0,
-      "fc_dep": 1.1,
+      "fc_dep": 3.1,
       "fc_weather": "Partly cloudy sky with one or two spells of rain or thundershowers",
       "day2_max": 36.0,
       "day2_min": 26.0,
@@ -104,9 +104,9 @@
       "sunset": "18:32:00",
       "warning_color": null,
       "alert": {
-        "level": "normal",
-        "ml": "സാധാരണ",
-        "en": "Normal"
+        "level": "watch",
+        "ml": "ജാഗ്രത",
+        "en": "Watch"
       }
     },
     {
@@ -246,9 +246,9 @@
       "obs_dep": 1.8,
       "rainfall": "NIL",
       "humidity": 84.0,
-      "fc_max": 36.0,
+      "fc_max": 37.0,
       "fc_min": 26.0,
-      "fc_dep": 1.8,
+      "fc_dep": 2.8,
       "fc_weather": "Partly cloudy sky with one or two spells of rain or thundershowers",
       "day2_max": 36.0,
       "day2_min": 25.0,
